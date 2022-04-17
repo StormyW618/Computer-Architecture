@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch helloWorld",
+            "request": "launch",
+            "mainClass": "helloWorld",
+            "projectName": "Computer-Architecture_ce750fce"
+        },
+        {
+            "type": "java",
+            "name": "Launch lab2",
+            "request": "launch",
+            "mainClass": "Lab2.lab2",
+            "projectName": "Computer Architecture_b1cdbb41"
+        },
+        {
+            "type": "java",
+            "name": "Launch helloWorld",
+            "request": "launch",
+            "mainClass": "helloWorld",
+            "projectName": "Computer Architecture_b1cdbb41"
+        }
+    ]
+}
