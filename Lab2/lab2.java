@@ -1,4 +1,4 @@
-//package Lab2;
+package Lab2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,33 +8,27 @@ import java.util.HashMap;
 public class lab2 {
 
     // HashMap look up tables
-    // type?
-    // opcodes
-    // registers
-    // functions
-    // labels/address
-    // whatever else you need
-
-    // find efficeint way to initialize map
-    // maybe make function to help initialize it?
-    public static HashMap<String, String> type = new HashMap<>();
+    public static HashMap<String, String>  type = new HashMap<>();
     public static HashMap<String, Integer> opcode = new HashMap<>();
     public static HashMap<String, Integer> func = new HashMap<>();
     public static HashMap<String, Integer> reg = new HashMap<>();
-    public static HashMap<String, Integer> line = new HashMap<>();
+    public static HashMap<String, Integer> lineLabel = new HashMap<>();
+
+    //array to store instructions from file
+    
 
     public class Instruction {
 
         String type;
         String instruc;
-        String opcode;
-        String rs;
-        String rt;
-        String rd;
-        String shamt;
-        String func;
-        String immediate;
-        String address;
+        int opcode;
+        int rs;
+        int rt;
+        int rd;
+        int shamt;
+        int func;
+        int immediate;
+        int address;
 
         // constructor
 
@@ -45,7 +39,8 @@ public class lab2 {
 
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
-        secondpass("./test2.asm");
+        //firstpass("./Lab2/test2.asm");
+        secondpass("./Lab2/test2.asm");
         //System.out.println(args[0]);
         //secondpass(args[0]);
         // init_opMap(opcode);
@@ -88,10 +83,11 @@ public class lab2 {
                 // strip whitespace
                 line = line.replaceAll("\\s", "");
 
-                String[] linelist = line.split("$");
+                String[] linelist = line.split("$",0);
                 // test to make sure line is properly filtered at this point
                 if (line != "") {
-                    System.out.println(line);
+                    //System.out.println(line);
+                    System.out.println(linelist[0]);
                 }
                 // check if present in hashtable, if it is go to that line + 1(label handling)
                 // check other hashmap for instruction, registers, and binary conversion
@@ -127,6 +123,7 @@ public class lab2 {
             System.out.println(line);
             System.out.println(linenum);
             // fill out lable hashmap
+            lineLabel.put(line,linenum);
 
         }
     }
