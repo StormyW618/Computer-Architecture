@@ -1,4 +1,4 @@
-package Lab2;
+//package Lab2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,7 +45,9 @@ public class lab2 {
 
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
-        secondpass("./Lab2/test2.asm");
+        secondpass("./test2.asm");
+        //System.out.println(args[0]);
+        //secondpass(args[0]);
         // init_opMap(opcode);
         // System.out.println(opcode);
 
