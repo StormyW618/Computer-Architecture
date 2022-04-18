@@ -63,6 +63,7 @@ public class lab2 {
         }
     }
 
+
     // takes filename as input
     // will read file line by line
     // passes line to line filtering function
@@ -74,14 +75,14 @@ public class lab2 {
             while (fileread.hasNextLine()) {
                 // place where parse passes through
                 String line = fileread.nextLine();
-                if (line.contains("#")) {
-                    // remove comments from line
-                    line = removecomment(line);
-                }
+                // remove comments and whitespace from line
+                line = filter(line);
                 // strip whitespace
-                line.trim();
+                line = line.replaceAll("\\s", "");
                 // test to make sure line is properly filtered at this point
-                System.out.println(line);
+                if (line != "") {
+                    System.out.println(line);
+                }
                 // check if present in hashtable, if it is go to that line + 1(label handling)
                 // check other hashmap for instruction, registers, and binary conversion
                 linenum++;
@@ -94,23 +95,28 @@ public class lab2 {
 
     // finds line or lines that contain labels
     // will have these two numbers into hashmap upon ...
-    public static void label(String line, int linenum) {
-        if (line.contains(":")) {
-            System.out.println(line);
-            System.out.println(linenum);
-        }
-    }
-
-    public static String removecomment(String line) {
+    public static String filter(String line) {
         String filtered = "";
         for (int i = 0; i < line.length(); i++) {
-            if (Character.toString(line.charAt(i)) != "#") {
-                filtered += Character.toString(line.charAt(i));
+            String x = Character.toString(line.charAt(i));
+            if (!x.contains("#")) {
+                if (!x.contains("\\s+") && !x.contains(" ") && !x.contains("\n")) {
+                    filtered += Character.toString(line.charAt(i));
+                }
             } else {
                 return filtered;
             }
         }
         return filtered;
+    }
+
+    // finds line or lines that contain labels
+    // will have these two numbers into hashmap upon ...
+    public static void label(String line, int linenum) {
+        if (line.contains(":")) {
+            System.out.println(line);
+            System.out.println(linenum);
+        }
     }
 
     // initialize opcode hashmap
