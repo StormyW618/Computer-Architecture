@@ -18,6 +18,7 @@ public class lab2 {
     // find efficeint way to initialize map
     // maybe make function to help initialize it?
     public HashMap<String, Integer> mapOpcode = new HashMap<>();
+    public HashMap<String, String> type = new HashMap<>();
 
     public class Instruction {
 
@@ -120,39 +121,76 @@ public class lab2 {
     }
 
     // initialize opcode hashmap
-    public static void init_opmap(HashMap<String, Integer> opmap) {
+    public static void init_opMap(HashMap<String, Integer> opMap) {
         // opcodes are 6 bits (31:26)
-        opmap.put("add", 0);
-        opmap.put("addi", 8);
-        opmap.put("addiu", 0);
-        opmap.put("addu", 0);
-        opmap.put("and", 0);
-        opmap.put("andi", 0);
-        opmap.put("beq", 0);
-        opmap.put("bne", 0);
-        opmap.put("j", 0);
-        opmap.put("jal", 0);
-        opmap.put("jr", 0);
-        opmap.put("lbu", 0);
-        opmap.put("lhu", 0);
-        opmap.put("ll", 0);
-        opmap.put("lui", 0);
-        opmap.put("lw", 0);
-        opmap.put("nor", 0);
-        opmap.put("or", 0);
-        opmap.put("ori", 0);
-        opmap.put("slt", 0);
-        opmap.put("slti", 0);
-        opmap.put("sltiu", 0);
-        opmap.put("sltu", 0);
-        opmap.put("sll", 0);
-        opmap.put("srl", 0);
-        opmap.put("sb", 0);
-        opmap.put("sc", 0);
-        opmap.put("sh", 0);
-        opmap.put("sw", 0);
-        opmap.put("sub", 0);
-        opmap.put("subu", 0);
+        opMap.put("add",    0x0);
+        opMap.put("addi",   0x8);
+        opMap.put("addiu",  0x9);
+        opMap.put("addu",   0x0);
+        opMap.put("and",    0x0);
+        opMap.put("andi",   0xc);
+        opMap.put("beq",    0x4);
+        opMap.put("bne",    0x5);
+        opMap.put("j",      0x2);
+        opMap.put("jal",    0x3);
+        opMap.put("jr",     0x0);
+        opMap.put("lbu",    0x24);
+        opMap.put("lhu",    0x25);
+        opMap.put("ll",     0x30);
+        opMap.put("lui",    0xf);
+        opMap.put("lw",     0x23);
+        opMap.put("nor",    0x0);
+        opMap.put("or",     0x0);
+        opMap.put("ori",    0xd);
+        opMap.put("slt",    0x0);
+        opMap.put("slti",   0xa);
+        opMap.put("sltiu",  0xb);
+        opMap.put("sltu",   0x0);
+        opMap.put("sll",    0x0);
+        opMap.put("srl",    0x0);
+        opMap.put("sb",     0x28);
+        opMap.put("sc",     0x38);
+        opMap.put("sh",     0x29);
+        opMap.put("sw",     0x2b);
+        opMap.put("sub",    0x0);
+        opMap.put("subu",   0x0);
 
+    }
+
+    // initialize opcode hashmap
+    public static void init_type(HashMap<String, String> typeMap) {
+        // instructions are R, I, or J type
+        typeMap.put("add",    "R");
+        typeMap.put("addi",   "I");
+        typeMap.put("addiu",  "I");
+        typeMap.put("addu",   "R");
+        typeMap.put("and",    "R");
+        typeMap.put("andi",   "I");
+        typeMap.put("beq",    "I");
+        typeMap.put("bne",    "I");
+        typeMap.put("j",      "J");
+        typeMap.put("jal",    "J");
+        typeMap.put("jr",     "R");
+        typeMap.put("lbu",    "I");
+        typeMap.put("lhu",    "I");
+        typeMap.put("ll",     "I");
+        typeMap.put("lui",    "I");
+        typeMap.put("lw",     "I");
+        typeMap.put("nor",    "R");
+        typeMap.put("or",     "R");
+        typeMap.put("ori",    "I");
+        typeMap.put("slt",    "R");
+        typeMap.put("slti",   "I");
+        typeMap.put("sltiu",  "I");
+        typeMap.put("sltu",   "R");
+        typeMap.put("sll",    "R");
+        typeMap.put("srl",    "R");
+        typeMap.put("sb",     "I");
+        typeMap.put("sc",     "I");
+        typeMap.put("sh",     "I");
+        typeMap.put("sw",     "I");
+        typeMap.put("sub",    "R");
+        typeMap.put("subu",   "R");
+        
     }
 }
