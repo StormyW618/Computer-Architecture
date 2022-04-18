@@ -17,8 +17,11 @@ public class lab2 {
 
     // find efficeint way to initialize map
     // maybe make function to help initialize it?
-    public HashMap<String, Integer> mapOpcode = new HashMap<>();
-    public HashMap<String, String> type = new HashMap<>();
+    public static HashMap<String, String> type = new HashMap<>();
+    public static HashMap<String, Integer> opcode = new HashMap<>();
+    public static HashMap<String, Integer> func = new HashMap<>();
+    public static HashMap<String, Integer> reg = new HashMap<>();
+
 
     public class Instruction {
 
@@ -42,6 +45,9 @@ public class lab2 {
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
         secondpass("./Lab2/test2.asm");
+        //init_opMap(opcode);
+        //System.out.println(opcode);
+
     }
 
     // takes filename as input
@@ -120,9 +126,46 @@ public class lab2 {
         }
     }
 
+    // initialize instruction type hashmap
+    public static void init_type(HashMap<String, String> typeMap) {
+        //instructions are R, I, or J type
+        typeMap.put("add",    "R");
+        typeMap.put("addi",   "I");
+        typeMap.put("addiu",  "I");
+        typeMap.put("addu",   "R");
+        typeMap.put("and",    "R");
+        typeMap.put("andi",   "I");
+        typeMap.put("beq",    "I");
+        typeMap.put("bne",    "I");
+        typeMap.put("j",      "J");
+        typeMap.put("jal",    "J");
+        typeMap.put("jr",     "R");
+        typeMap.put("lbu",    "I");
+        typeMap.put("lhu",    "I");
+        typeMap.put("ll",     "I");
+        typeMap.put("lui",    "I");
+        typeMap.put("lw",     "I");
+        typeMap.put("nor",    "R");
+        typeMap.put("or",     "R");
+        typeMap.put("ori",    "I");
+        typeMap.put("slt",    "R");
+        typeMap.put("slti",   "I");
+        typeMap.put("sltiu",  "I");
+        typeMap.put("sltu",   "R");
+        typeMap.put("sll",    "R");
+        typeMap.put("srl",    "R");
+        typeMap.put("sb",     "I");
+        typeMap.put("sc",     "I");
+        typeMap.put("sh",     "I");
+        typeMap.put("sw",     "I");
+        typeMap.put("sub",    "R");
+        typeMap.put("subu",   "R");
+        
+    }
+
     // initialize opcode hashmap
     public static void init_opMap(HashMap<String, Integer> opMap) {
-        // opcodes are 6 bits (31:26)
+        //opcodes are 6 bits (31:26)
         opMap.put("add",    0x0);
         opMap.put("addi",   0x8);
         opMap.put("addiu",  0x9);
@@ -157,40 +200,60 @@ public class lab2 {
 
     }
 
-    // initialize opcode hashmap
-    public static void init_type(HashMap<String, String> typeMap) {
-        // instructions are R, I, or J type
-        typeMap.put("add",    "R");
-        typeMap.put("addi",   "I");
-        typeMap.put("addiu",  "I");
-        typeMap.put("addu",   "R");
-        typeMap.put("and",    "R");
-        typeMap.put("andi",   "I");
-        typeMap.put("beq",    "I");
-        typeMap.put("bne",    "I");
-        typeMap.put("j",      "J");
-        typeMap.put("jal",    "J");
-        typeMap.put("jr",     "R");
-        typeMap.put("lbu",    "I");
-        typeMap.put("lhu",    "I");
-        typeMap.put("ll",     "I");
-        typeMap.put("lui",    "I");
-        typeMap.put("lw",     "I");
-        typeMap.put("nor",    "R");
-        typeMap.put("or",     "R");
-        typeMap.put("ori",    "I");
-        typeMap.put("slt",    "R");
-        typeMap.put("slti",   "I");
-        typeMap.put("sltiu",  "I");
-        typeMap.put("sltu",   "R");
-        typeMap.put("sll",    "R");
-        typeMap.put("srl",    "R");
-        typeMap.put("sb",     "I");
-        typeMap.put("sc",     "I");
-        typeMap.put("sh",     "I");
-        typeMap.put("sw",     "I");
-        typeMap.put("sub",    "R");
-        typeMap.put("subu",   "R");
-        
+    // initialize function address hashmap
+    public static void init_func(HashMap<String, Integer> funcMap) {
+        //registers are 6 bits (5:0)
+        funcMap.put("add",    0x20);
+        funcMap.put("addu",   0x21);
+        funcMap.put("and",    0x24);
+        funcMap.put("jr",     0x08);
+        funcMap.put("nor",    0x27);
+        funcMap.put("or",     0x25);
+        funcMap.put("slt",    0x2a);
+        funcMap.put("sltu",   0x2b);
+        funcMap.put("sll",    0x00);
+        funcMap.put("srl",    0x02);
+        funcMap.put("sub",    0x22);
+        funcMap.put("subu",   0x23);
     }
+
+    // initialize register address hashmap
+    public static void init_reg(HashMap<String, Integer> regMap) {
+        //registers are from 0-31
+        regMap.put("$zero", 0);
+        regMap.put("$at",   1);
+        regMap.put("$v0",   2);
+        regMap.put("$v1",   3);
+        regMap.put("$a0",   4);
+        regMap.put("$a1",   5);
+        regMap.put("$a2",   6);
+        regMap.put("$a3",   7);
+        regMap.put("$t0",   8);
+        regMap.put("$t1",   9);
+        regMap.put("$t2",   10);
+        regMap.put("$t3",   11);
+        regMap.put("$t4",   12);
+        regMap.put("$t5",   13);
+        regMap.put("$t6",   14);
+        regMap.put("$t7",   15);
+        regMap.put("$s0",   16);
+        regMap.put("$s1",   17);
+        regMap.put("$s2",   18);
+        regMap.put("$s3",   19);
+        regMap.put("$s4",   20);
+        regMap.put("$s5",   21);
+        regMap.put("$s6",   22);
+        regMap.put("$s7",   23);
+        regMap.put("$t8",   24);
+        regMap.put("$t9",   25);
+        regMap.put("$k0",   26);
+        regMap.put("$k1",   27);
+        regMap.put("$gp",   28);
+        regMap.put("$sp",   29);
+        regMap.put("$fp",   30);
+        regMap.put("$ra",   31);
+    }
+
+
+
 }

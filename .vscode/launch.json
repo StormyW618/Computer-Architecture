@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch lab2",
+            "request": "launch",
+            "mainClass": "Lab2.lab2",
+            "projectName": "Computer-Architecture_ce750fce"
+        },
+        {
+            "type": "java",
             "name": "Launch helloWorld",
             "request": "launch",
             "mainClass": "helloWorld",
