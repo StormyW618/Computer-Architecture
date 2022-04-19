@@ -18,63 +18,6 @@ public class lab2 {
     // array to store instructions from file
     // public static ArrayList<Instruction> program;
 
-    public class Instruction {
-
-        String type;
-        String instruct;
-        int opcode;
-        int rs;
-        int rt;
-        int rd;
-        int shamt;
-        int func;
-        int immediate;
-        int address;
-
-        // constructor
-        public Instruction() {
-            type = "";
-            instruct = "";
-            opcode = 0;
-            rs = 0;
-            rt = 0;
-            rd = 0;
-            shamt = 0;
-            func = 0;
-            immediate = 0;
-            address = 0;
-        }
-
-        // functions
-        // one to help convert to binary
-        public int inst2bin() {
-            int binary = 0;
-
-            if (type == "R") {
-                // type R instruction
-                binary |= ((opcode & 63) << 26); // 31-26
-                binary |= ((rs & 31) << 21); // 25-21
-                binary |= ((rt & 31) << 16); // 20-16
-                binary |= ((rd & 31) << 11); // 15-11
-                binary |= ((shamt & 31) << 6); // 10-6
-                binary |= ((func & 63) << 0); // 5-0
-            } else if (type == "I") {
-                // type I instruction
-                binary |= ((opcode & 63) << 26); // 31-26
-                binary |= ((rs & 31) << 21); // 25-21
-                binary |= ((rt & 31) << 16); // 20-16
-                binary |= ((immediate & 0xFFFF) << 0); // 15-0
-            } else if (type == "J") {
-                // type J instruction
-                binary |= ((opcode & 63) << 26); // 31-26
-                binary |= ((address & 31) << 0); // 25-0
-
-            }
-
-            return binary;
-        }
-    }
-
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
         // firstpass("./Lab2/test2.asm");
