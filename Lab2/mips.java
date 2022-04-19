@@ -17,8 +17,8 @@ public class mips {
     //---MEMBERS---
 
         //file io
-        String filename; //assembly file name
-        File asmFile; //assembly file
+        public static String filename; //assembly file name
+        public static File asmFile; //assembly file
 
         //look up tables
         public static HashMap<String, String>  type = new HashMap<>(); 
@@ -28,15 +28,16 @@ public class mips {
         public static HashMap<String, Integer> lineLabel = new HashMap<>();
 
         //data
-        ArrayList<String> progLines; //holds file instruction lines as strings
-        ArrayList<Instruction> program; //holds file instructions as parsed data
-        ArrayList<Integer> bin; //holds file conversion to binary
+        public static ArrayList<String> lines; //holds file instruction lines as strings
+        public static ArrayList<Instruction> program; //holds file instructions as parsed data
+        public static ArrayList<Integer> bin; //holds file conversion to binary
 
     //---METHODS---
         //constructors
         public mips(){
             //initialize filename with nothing
             filename = "";
+            asmFile = null;
 
             //allocate members
             type = new HashMap<>(); 
@@ -45,36 +46,16 @@ public class mips {
             reg = new HashMap<>();
             lineLabel = new HashMap<>();
 
-            progLines = new ArrayList<>();
+            lines = new ArrayList<>();
             program = new ArrayList<>();
 
             //initialize tables
-            init();
-
-        }
-
-        public mips(String file){
-            //initialize filename with input and create file object 
-            filename = file;
-            asmFile = new File(filename);
-
-            //allocate members
-            type = new HashMap<>(); 
-            opcode = new HashMap<>();
-            func = new HashMap<>();
-            reg = new HashMap<>();
-            lineLabel = new HashMap<>();
-
-            progLines = new ArrayList<>();
-            program = new ArrayList<>();
-
-            //initialize tables
-            init();
+            init_tables();
 
         }
 
         //init
-        public static void init()
+        public static void init_tables()
         {
             //calls all init functions to fill out look up tables
             init_type(type);
@@ -82,8 +63,9 @@ public class mips {
             init_func(func);
             init_reg(reg);
         }
-        // initialize instruction type hashmap
+        
         public static void init_type(HashMap<String, String> typeMap) {
+            // initialize instruction type hashmap
             // instructions are R, I, or J type
             typeMap.put("add", "R");
             typeMap.put("addi", "I");
@@ -119,8 +101,8 @@ public class mips {
 
         }
 
-        // initialize opcode hashmap
         public static void init_opMap(HashMap<String, Integer> opMap) {
+            // initialize opcode hashmap
             // opcodes are 6 bits (31:26)
             opMap.put("add", 0x0);
             opMap.put("addi", 0x8);
@@ -156,8 +138,8 @@ public class mips {
 
         }
 
-        // initialize function address hashmap
         public static void init_func(HashMap<String, Integer> funcMap) {
+            // initialize function address hashmap
             // registers are 6 bits (5:0)
             funcMap.put("add", 0x20);
             funcMap.put("addu", 0x21);
@@ -173,55 +155,56 @@ public class mips {
             funcMap.put("subu", 0x23);
         }
 
-        // initialize register address hashmap
         public static void init_reg(HashMap<String, Integer> regMap) {
-                // registers are from 0-31
-                regMap.put("$zero", 0);
-                regMap.put("$0", 0);
-                regMap.put("$at", 1);
-                regMap.put("$v0", 2);
-                regMap.put("$v1", 3);
-                regMap.put("$a0", 4);
-                regMap.put("$a1", 5);
-                regMap.put("$a2", 6);
-                regMap.put("$a3", 7);
-                regMap.put("$t0", 8);
-                regMap.put("$t1", 9);
-                regMap.put("$t2", 10);
-                regMap.put("$t3", 11);
-                regMap.put("$t4", 12);
-                regMap.put("$t5", 13);
-                regMap.put("$t6", 14);
-                regMap.put("$t7", 15);
-                regMap.put("$s0", 16);
-                regMap.put("$s1", 17);
-                regMap.put("$s2", 18);
-                regMap.put("$s3", 19);
-                regMap.put("$s4", 20);
-                regMap.put("$s5", 21);
-                regMap.put("$s6", 22);
-                regMap.put("$s7", 23);
-                regMap.put("$t8", 24);
-                regMap.put("$t9", 25);
-                regMap.put("$k0", 26);
-                regMap.put("$k1", 27);
-                regMap.put("$gp", 28);
-                regMap.put("$sp", 29);
-                regMap.put("$fp", 30);
-                regMap.put("$ra", 31);
-            }
+            // initialize register address hashmap
+            // registers are from 0-31
+            regMap.put("$zero", 0);
+            regMap.put("$0", 0);
+            regMap.put("$at", 1);
+            regMap.put("$v0", 2);
+            regMap.put("$v1", 3);
+            regMap.put("$a0", 4);
+            regMap.put("$a1", 5);
+            regMap.put("$a2", 6);
+            regMap.put("$a3", 7);
+            regMap.put("$t0", 8);
+            regMap.put("$t1", 9);
+            regMap.put("$t2", 10);
+            regMap.put("$t3", 11);
+            regMap.put("$t4", 12);
+            regMap.put("$t5", 13);
+            regMap.put("$t6", 14);
+            regMap.put("$t7", 15);
+            regMap.put("$s0", 16);
+            regMap.put("$s1", 17);
+            regMap.put("$s2", 18);
+            regMap.put("$s3", 19);
+            regMap.put("$s4", 20);
+            regMap.put("$s5", 21);
+            regMap.put("$s6", 22);
+            regMap.put("$s7", 23);
+            regMap.put("$t8", 24);
+            regMap.put("$t9", 25);
+            regMap.put("$k0", 26);
+            regMap.put("$k1", 27);
+            regMap.put("$gp", 28);
+            regMap.put("$sp", 29);
+            regMap.put("$fp", 30);
+            regMap.put("$ra", 31);
+        }
 
         //file io
-        public static ArrayList firstpass(String filename) {
+        public static ArrayList firstpass(String file) {
             // takes filename as input
             // will read file line by line
             // passes line to comment filtering function
             // creates list of lines without comments
             // consider: linenums will be one off, won't need to traverse file again
             try {
-                ArrayList<String> lines = new ArrayList<>();
-                File myfile = new File(filename);
-                Scanner fileread = new Scanner(myfile);
+                filename = file;
+                asmFile = new File(filename);
+                Scanner fileread = new Scanner(asmFile);
+                
                 while (fileread.hasNextLine()) {
                     // place where parse passes through
                     String line = fileread.nextLine();
@@ -230,16 +213,19 @@ public class mips {
                     // adding filtered line to list
                     lines.add(line);
                 }
+
+                //close file
                 fileread.close();
                 // return array of lines
                 return lines;
+
             } catch (FileNotFoundException e) {
                 System.out.println("File was not found");
             }
             return null;
         }
         
-        public static void secondpass(ArrayList lines) {
+        public static void secondpass() {
             // takes arraylist of lines in file as input
             // will read each index and check if it is a label
             // would we need to account for jumps?
@@ -265,19 +251,24 @@ public class mips {
             // }
         }
 
-        public static void thirdpass(ArrayList lines) {
+        public static void thirdpass() {
             // takes filename as input
             // will read file line by line
             // passes line to line filtering function
             String test[];
-            // Instruction inst = new Instruction();
+            Instruction temp = new Instruction();
             for (int i = 0; i < lines.size(); i++) {
                 String line = (String) lines.get(i);
                 // check if j/jal instruction
                 if (!line.contains("$")) {
                     line = line.trim();
                     test = line.split(" ");
-                    // inst.instruct = test[0];
+                    
+                    //store jump instruction 
+                    temp.type = "J";
+                    temp.instruct = test[0];
+                    //more jump stuff
+
 
                 } else {
                     // remove comments and whitespace from line
@@ -329,44 +320,16 @@ public class mips {
         }
 
         //data io
-        public  void printProgram(){
-            //loops through and prints program line by line
-            for (int i = 0; i < program.size(); i++){
-                if (program.get(i).type == "R")
-                {
-                    if (program.get(i).instruct == "jr")
-                    {
-                        System.out.printf("%s %s",program.get(i).instruct,program.get(i).rd);
-                    }
-                    else if (program.get(i).instruct == "sll")
-                    {
-
-                    }
-                    else if (program.get(i).instruct == "srl")
-                    {
-
-                    }
-                    else
-                    {
-
-                    }
-
-
-                }
-                else if (program.get(i).type == "I")
-                {
-
-                }
-                else if (program.get(i).type == "J")
-                {
-
-                }
-
+        public static void printBinary(){
+            //loop through binary list and print asm binary
+            for(int i = 0; i < bin.size(); i++)
+            {
+                System.out.print(bin.get(i)); 
             }
         }
 
         //data manip
-        public int inst2bin(int instNum) {
+        public static int inst2bin(int instNum) {
             //take instruction from list and convert it to binary
             int binary = 0;
 
@@ -394,7 +357,7 @@ public class mips {
             return binary;
         }
 
-        public void prog2bin(){
+        public static void prog2bin(){
             //program will iterate through size of program and
             //generate line by line binary 
             for(int i = 0; i < program.size(); i++)
