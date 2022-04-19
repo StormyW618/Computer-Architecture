@@ -4,23 +4,24 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 public class lab2 {
 
     // HashMap look up tables
-    public static HashMap<String, String>  type = new HashMap<>();
+    public static HashMap<String, String> type = new HashMap<>();
     public static HashMap<String, Integer> opcode = new HashMap<>();
     public static HashMap<String, Integer> func = new HashMap<>();
     public static HashMap<String, Integer> reg = new HashMap<>();
     public static HashMap<String, Integer> lineLabel = new HashMap<>();
 
-    //array to store instructions from file
-    
+    // array to store instructions from file
+    // public static ArrayList<Instruction> program;
 
     public class Instruction {
 
         String type;
-        String instruc;
+        String instruct;
         int opcode;
         int rs;
         int rt;
@@ -31,18 +32,60 @@ public class lab2 {
         int address;
 
         // constructor
+        public Instruction() {
+            type = "";
+            instruct = "";
+            opcode = 0;
+            rs = 0;
+            rt = 0;
+            rd = 0;
+            shamt = 0;
+            func = 0;
+            immediate = 0;
+            address = 0;
+        }
 
         // functions
         // one to help convert to binary
-        //
+        public int inst2bin() {
+            int binary = 0;
+
+            if (type == "R") {
+                // type R instruction
+                binary |= ((opcode & 63) << 26); // 31-26
+                binary |= ((rs & 31) << 21); // 25-21
+                binary |= ((rt & 31) << 16); // 20-16
+                binary |= ((rd & 31) << 11); // 15-11
+                binary |= ((shamt & 31) << 6); // 10-6
+                binary |= ((func & 63) << 0); // 5-0
+            } else if (type == "I") {
+                // type I instruction
+                binary |= ((opcode & 63) << 26); // 31-26
+                binary |= ((rs & 31) << 21); // 25-21
+                binary |= ((rt & 31) << 16); // 20-16
+                binary |= ((immediate & 0xFFFF) << 0); // 15-0
+            } else if (type == "J") {
+                // type J instruction
+                binary |= ((opcode & 63) << 26); // 31-26
+                binary |= ((address & 31) << 0); // 25-0
+
+            }
+
+            return binary;
+        }
     }
 
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
-        //firstpass("./Lab2/test2.asm");
-        secondpass("./Lab2/test2.asm");
-        //System.out.println(args[0]);
-        //secondpass(args[0]);
+        // firstpass("./Lab2/test2.asm");
+        ArrayList<String> lines;
+        ArrayList<Instruction> program;
+        lines = firstpass("./Lab2/test1.asm");
+        secondpass(lines);
+        thirdpass(lines);
+        System.out.println("test successful");
+        // System.out.println(args[0]);
+        // secondpass(args[0]);
         // init_opMap(opcode);
         // System.out.println(opcode);
 
@@ -50,70 +93,83 @@ public class lab2 {
 
     // takes filename as input
     // will read file line by line
-    public static void firstpass(String filename) {
+    // passes line to comment filtering function
+    // creates list of lines without comments
+    // consider: linenums will be one off, won't need to traverse file again
+    public static ArrayList firstpass(String filename) {
         try {
-            int linenum = 1;
+            ArrayList<String> lines = new ArrayList<>();
             File myfile = new File(filename);
             Scanner fileread = new Scanner(myfile);
             while (fileread.hasNextLine()) {
                 // place where parse passes through
                 String line = fileread.nextLine();
-                label(line, linenum);
-                linenum++;
+                // removes comments from code
+                line = filtercomments(line);
+                // adding filtered line to list
+                lines.add(line);
             }
             fileread.close();
+            // return array of lines
+            return lines;
         } catch (FileNotFoundException e) {
             System.out.println("File was not found");
         }
+        return null;
+    }
+
+    // takes arraylist of lines in file as input
+    // will read each index and check if it is a label
+    // would we need to account for jumps?
+    public static void secondpass(ArrayList lines) {
+        for (int i = 0; i < lines.size(); i++) {
+            String line = (String) lines.get(i);
+            if (line.contains(":")) {
+                label(line, i + 1);
+            }
+        }
+        // try {
+        // int linenum = 1;
+        // File myfile = new File(filename);
+        // Scanner fileread = new Scanner(myfile);
+        // while (fileread.hasNextLine()) {
+        // // place where parse passes through
+        // String line = fileread.nextLine();
+        // label(line, linenum);
+        // linenum++;
+        // }
+        // fileread.close();
+        // } catch (FileNotFoundException e) {
+        // System.out.println("File was not found");
+        // }
     }
 
     // takes filename as input
     // will read file line by line
     // passes line to line filtering function
-    public static void secondpass(String filename) {
-        try {
-            int linenum = 1;
-            File myfile = new File(filename);
-            Scanner fileread = new Scanner(myfile);
-            while (fileread.hasNextLine()) {
-                // place where parse passes through
-                String line = fileread.nextLine();
+    public static void thirdpass(ArrayList lines) {
+        String test[];
+        // Instruction inst = new Instruction();
+        for (int i = 0; i < lines.size(); i++) {
+            String line = (String) lines.get(i);
+            // check if j/jal instruction
+            if (!line.contains("$")) {
+                line = line.trim();
+                test = line.split(" ");
+                // inst.instruct = test[0];
+
+            } else {
                 // remove comments and whitespace from line
                 line = filter(line);
                 // strip whitespace
                 line = line.replaceAll("\\s", "");
-
-                String[] linelist = line.split("$",0);
                 // test to make sure line is properly filtered at this point
+                test = line.split("\\$");
                 if (line != "") {
-                    //System.out.println(line);
-                    System.out.println(linelist[0]);
+                    System.out.println(line);
                 }
-                // check if present in hashtable, if it is go to that line + 1(label handling)
-                // check other hashmap for instruction, registers, and binary conversion
-                linenum++;
-            }
-            fileread.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("File was not found");
-        }
-    }
-
-    // finds line or lines that contain labels
-    // will have these two numbers into hashmap upon ...
-    public static String filter(String line) {
-        String filtered = "";
-        for (int i = 0; i < line.length(); i++) {
-            String x = Character.toString(line.charAt(i));
-            if (!x.contains("#")) {
-                if (!x.contains("\\s+") && !x.contains(" ") && !x.contains(",")) {
-                    filtered += Character.toString(line.charAt(i));
-                }
-            } else {
-                return filtered;
             }
         }
-        return filtered;
     }
 
     // finds line or lines that contain labels
@@ -122,10 +178,32 @@ public class lab2 {
         if (line.contains(":")) {
             System.out.println(line);
             System.out.println(linenum);
-            // fill out lable hashmap
-            lineLabel.put(line,linenum);
-
         }
+    }
+
+    public static String filtercomments(String line) {
+        String filtered = "";
+        for (int i = 0; i < line.length(); i++) {
+            String x = Character.toString(line.charAt(i));
+            if (!x.contains("#")) {
+                filtered += Character.toString(line.charAt(i));
+            } else {
+                return filtered;
+            }
+        }
+        return filtered;
+    }
+
+    // filters out whitespace
+    public static String filter(String line) {
+        String filtered = "";
+        for (int i = 0; i < line.length(); i++) {
+            String x = Character.toString(line.charAt(i));
+            if (!x.contains("\\s+") && !x.contains(" ") && !x.contains("\n")) {
+                filtered += Character.toString(line.charAt(i));
+            }
+        }
+        return filtered;
     }
 
     // initialize instruction type hashmap
