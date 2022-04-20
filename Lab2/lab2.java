@@ -91,7 +91,7 @@ public class lab2 {
 
     }
 
-    // takes filename as input
+      // takes filename as input
     // will read file line by line
     // passes line to comment filtering function
     // creates list of lines without comments
@@ -128,20 +128,6 @@ public class lab2 {
                 label(line, i + 1);
             }
         }
-        // try {
-        // int linenum = 1;
-        // File myfile = new File(filename);
-        // Scanner fileread = new Scanner(myfile);
-        // while (fileread.hasNextLine()) {
-        // // place where parse passes through
-        // String line = fileread.nextLine();
-        // label(line, linenum);
-        // linenum++;
-        // }
-        // fileread.close();
-        // } catch (FileNotFoundException e) {
-        // System.out.println("File was not found");
-        // }
     }
 
     // takes filename as input
@@ -149,27 +135,39 @@ public class lab2 {
     // passes line to line filtering function
     public static void thirdpass(ArrayList lines) {
         String test[];
-        // Instruction inst = new Instruction();
         for (int i = 0; i < lines.size(); i++) {
             String line = (String) lines.get(i);
-            // check if j/jal instruction
-            if (!line.contains("$")) {
+            // if label and j/jal instruction are on the same line
+            // replaces colon with whitespaces and splits into list
+            if (line.contains(":") && !line.contains("$")) {
+                line = line.trim();
+                line = line.replace(":", " ");
+                test = line.split(" ");
+            }
+            // if label and any other instruction are on the same line
+            else if (line.contains(":") && line.contains("$")) {
+                line = filter(line);
+                line = line.replace(":", " ");
+                line = line.replace("$", " $");
+                test = line.split(" ");
+            }
+            // if line doesn't contain label but is j/jal instruction
+            else if (!line.contains("$") && line != "") {
                 line = line.trim();
                 test = line.split(" ");
-                // inst.instruct = test[0];
-
-            } else {
-                // remove comments and whitespace from line
+            }
+            // if line contains any other instruction other than j/jal
+            else {
+                // remove whitespace from line
                 line = filter(line);
                 // strip whitespace
                 line = line.replaceAll("\\s", "");
-                // test to make sure line is properly filtered at this point
-                test = line.split("\\$");
-                if (line != "") {
-                    System.out.println(line);
-                }
+                line = line.replace("$", " $");
+                test = line.split(" ");
             }
         }
+        // check if present in hashtable, if it is go to that line + 1(label handling)
+        // check other hashmap for instruction, registers, and binary conversion
     }
 
     // finds line or lines that contain labels
@@ -181,6 +179,7 @@ public class lab2 {
         }
     }
 
+    // filters out comments from line
     public static String filtercomments(String line) {
         String filtered = "";
         for (int i = 0; i < line.length(); i++) {
@@ -194,12 +193,12 @@ public class lab2 {
         return filtered;
     }
 
-    // filters out whitespace
+    // filters out whitespace from line
     public static String filter(String line) {
         String filtered = "";
         for (int i = 0; i < line.length(); i++) {
             String x = Character.toString(line.charAt(i));
-            if (!x.contains("\\s+") && !x.contains(" ") && !x.contains("\n")) {
+            if (!x.contains("\\s+") && !x.contains(" ") && !x.contains(",")) {
                 filtered += Character.toString(line.charAt(i));
             }
         }
