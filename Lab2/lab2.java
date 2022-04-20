@@ -16,8 +16,8 @@ public class lab2 {
     public static HashMap<String, Integer> lineLabel = new HashMap<>();
 
     // array to store instructions from file
-    public static ArrayList<Instruction> program;
-    public static ArrayList<Integer> bin;
+    public static ArrayList<Instruction> program = new ArrayList<>();
+    public static ArrayList<Integer> bin = new ArrayList<>();
 
     public static class Instruction {
 
@@ -51,6 +51,12 @@ public class lab2 {
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
         
+        //init hash tables
+        init_type(type);
+        init_opMap(opcode);
+        init_func(func);
+        init_reg(reg);
+
         //read in file, get rid of white spaces and comments
         //parse data and fill list of instructions with data
         ArrayList<String> lines;
@@ -90,8 +96,19 @@ public class lab2 {
                 line = filtercomments(line);
                 // removes whitespace from votes
                 //line = filter(line);
+
+                line = line.replace("\n","");
+                line = line.replace("\r","");
+                line = line.replace("\t","");
+                line = line.replace("#","");
+                line = line.replace(" ","");
+
                 // adding filtered line to list
-                lines.add(line);
+                if (!(line == ""))
+                {
+                    lines.add(line);
+                }
+                
             }
             fileread.close();
             // return array of lines
@@ -151,7 +168,8 @@ public class lab2 {
 
             //call function to take parsed data and fill out instruction fields
             //then add to list of instructions
-            program.add(fillInstructData(test));
+            Instruction lineData = fillInstructData(test);
+            program.add(lineData);
 
         }
         // check if present in hashtable, if it is go to that line + 1(label handling)
