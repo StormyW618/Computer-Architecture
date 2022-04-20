@@ -16,9 +16,10 @@ public class lab2 {
     public static HashMap<String, Integer> lineLabel = new HashMap<>();
 
     // array to store instructions from file
-    // public static ArrayList<Instruction> program;
+    public static ArrayList<Instruction> program;
+    public static ArrayList<Integer> bin;
 
-    public class Instruction {
+    public static class Instruction {
 
         String type;
         String instruct;
@@ -45,53 +46,34 @@ public class lab2 {
             address = 0;
         }
 
-        // functions
-        // one to help convert to binary
-        public int inst2bin() {
-            int binary = 0;
-
-            if (type == "R") {
-                // type R instruction
-                binary |= ((opcode & 63) << 26); // 31-26
-                binary |= ((rs & 31) << 21); // 25-21
-                binary |= ((rt & 31) << 16); // 20-16
-                binary |= ((rd & 31) << 11); // 15-11
-                binary |= ((shamt & 31) << 6); // 10-6
-                binary |= ((func & 63) << 0); // 5-0
-            } else if (type == "I") {
-                // type I instruction
-                binary |= ((opcode & 63) << 26); // 31-26
-                binary |= ((rs & 31) << 21); // 25-21
-                binary |= ((rt & 31) << 16); // 20-16
-                binary |= ((immediate & 0xFFFF) << 0); // 15-0
-            } else if (type == "J") {
-                // type J instruction
-                binary |= ((opcode & 63) << 26); // 31-26
-                binary |= ((address & 31) << 0); // 25-0
-
-            }
-
-            return binary;
-        }
     }
 
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
-        // firstpass("./Lab2/test2.asm");
+        
+        //read in file, get rid of white spaces and comments
+        //parse data and fill list of instructions with data
         ArrayList<String> lines;
-        ArrayList<Instruction> program;
         lines = firstpass("./Lab2/test1.asm");
         secondpass(lines);
         thirdpass(lines);
         System.out.println("test successful");
-        // System.out.println(args[0]);
-        // secondpass(args[0]);
-        // init_opMap(opcode);
-        // System.out.println(opcode);
+
+        //start conversion to binary
+        for(int i = 0; i < program.size(); i++)
+        {
+            bin.add(inst2bin(program.get(i)));
+        }
+
+        //print conversion
+        for(int i = 0; i < bin.size(); i++)
+        {
+            System.out.println(bin.get(i));
+        }
 
     }
 
-      // takes filename as input
+    // takes filename as input
     // will read file line by line
     // passes line to comment filtering function
     // creates list of lines without comments
@@ -106,6 +88,8 @@ public class lab2 {
                 String line = fileread.nextLine();
                 // removes comments from code
                 line = filtercomments(line);
+                // removes whitespace from votes
+                //line = filter(line);
                 // adding filtered line to list
                 lines.add(line);
             }
@@ -130,7 +114,6 @@ public class lab2 {
         }
     }
 
-    // takes filename as input
     // will read file line by line
     // passes line to line filtering function
     public static void thirdpass(ArrayList lines) {
@@ -165,6 +148,11 @@ public class lab2 {
                 line = line.replace("$", " $");
                 test = line.split(" ");
             }
+
+            //call function to take parsed data and fill out instruction fields
+            //then add to list of instructions
+            program.add(fillInstructData(test));
+
         }
         // check if present in hashtable, if it is go to that line + 1(label handling)
         // check other hashmap for instruction, registers, and binary conversion
@@ -176,6 +164,7 @@ public class lab2 {
         if (line.contains(":")) {
             System.out.println(line);
             System.out.println(linenum);
+            lineLabel.put(line,linenum);
         }
     }
 
@@ -203,6 +192,123 @@ public class lab2 {
             }
         }
         return filtered;
+    }
+
+    public static Instruction fillInstructData(String[] parsedLine){
+        //define new instruction to fill out
+        Instruction data = new Instruction();
+
+        //test what kind of instruction we are dealing with
+        if (type.get(parsedLine[0]) == "R")
+        {   
+            //example add  $t0, $t1, $t2
+            //        name rd,  rs,  rt
+            //fill out instruction name, opcode and function
+            data.instruct = parsedLine[0]; 
+            data.opcode = opcode.get(data.instruct);
+            data.func = func.get(data.instruct);
+
+            //based on instruction name, decide what values from 
+            //string array get pased into instruction data
+            if((data.instruct == "sll") | (data.instruct == "srl"))
+            {
+                //example sll  $t0, $t1, 4
+                //        name  rd,  rt, shmat
+                data.rd = reg.get(parsedLine[1]);
+                data.rt = reg.get(parsedLine[2]);
+                data.shamt = Integer.parseInt(parsedLine[3]);
+            }
+            else if (data.instruct == "jr")
+            {   
+                //example jr   $t0
+                //        name  rs
+                data.rs = data.rs = reg.get(parsedLine[2]);
+            }
+            else
+            {
+                //example add  $t0, $t1, $t2
+                //        name rd,  rs,  rt
+                data.rd = reg.get(parsedLine[1]);
+                data.rs = reg.get(parsedLine[2]);
+                data.rt = reg.get(parsedLine[3]);
+            }
+
+
+
+        }
+        else if (type.get(parsedLine[0]) == "I")
+        {
+            //example addi $t0, $t1, 8
+            //        name rt,  rs,  immediate
+            //fill out instruction name and opcode
+            data.instruct = parsedLine[0]; 
+            data.opcode = opcode.get(data.instruct);
+
+            if ((data.instruct == "beq") | (data.instruct == "bne"))
+            {
+                //example beq  $t0, $t1, label
+                //        name rs,  rt,  ?
+                data.rs = reg.get(parsedLine[1]);
+                data.rt = reg.get(parsedLine[2]);
+                //may need to fill out immediate with label?
+
+            }
+            else if ((data.instruct == "lw") | (data.instruct == "sw"))
+            {
+                //example lw   $t0, 12($s2)
+                //        name rt,  immediate(rs)
+                data.rt = reg.get(parsedLine[1]);
+                data.rs = reg.get(parsedLine[3]);
+                data.immediate = Integer.parseInt(parsedLine[2]);
+            }
+            else
+            {
+                //example addi $t0, $t1, 8
+                //        name rt,  rs,  immediate
+                data.rt = reg.get(parsedLine[1]);
+                data.rs = reg.get(parsedLine[2]);
+                data.immediate = Integer.parseInt(parsedLine[3]);
+            }
+        }
+        else if (type.get(parsedLine[0]) == "J")
+        {
+            //example j     label
+            //        name  addr
+            //fill out instruction name and opcode
+            data.instruct = parsedLine[0]; 
+            data.opcode = opcode.get(data.instruct);
+            data.address = lineLabel.get(parsedLine[0]);
+            
+        }
+
+        return data;
+    } 
+
+    public static int inst2bin(Instruction inst) {
+        int binary = 0;
+
+        if (inst.type == "R") {
+            // type R instruction
+            binary |= ((inst.opcode & 63) << 26); // 31-26
+            binary |= ((inst.rs & 31) << 21); // 25-21
+            binary |= ((inst.rt & 31) << 16); // 20-16
+            binary |= ((inst.rd & 31) << 11); // 15-11
+            binary |= ((inst.shamt & 31) << 6); // 10-6
+            binary |= ((inst.func & 63) << 0); // 5-0
+        } else if (inst.type == "I") {
+            // type I instruction
+            binary |= ((inst.opcode & 63) << 26); // 31-26
+            binary |= ((inst.rs & 31) << 21); // 25-21
+            binary |= ((inst.rt & 31) << 16); // 20-16
+            binary |= ((inst.immediate & 0xFFFF) << 0); // 15-0
+        } else if (inst.type == "J") {
+            // type J instruction
+            binary |= ((inst.opcode & 63) << 26); // 31-26
+            binary |= ((inst.address & 31) << 0); // 25-0
+
+        }
+
+        return binary;
     }
 
     // initialize instruction type hashmap
