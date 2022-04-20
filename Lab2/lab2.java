@@ -50,30 +50,28 @@ public class lab2 {
 
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
-        
-        //init hash tables
+
+        // init hash tables
         init_type(type);
         init_opMap(opcode);
         init_func(func);
         init_reg(reg);
 
-        //read in file, get rid of white spaces and comments
-        //parse data and fill list of instructions with data
+        // read in file, get rid of white spaces and comments
+        // parse data and fill list of instructions with data
         ArrayList<String> lines;
         lines = firstpass("./Lab2/test1.asm");
         secondpass(lines);
         thirdpass(lines);
         System.out.println("test successful");
 
-        //start conversion to binary
-        for(int i = 0; i < program.size(); i++)
-        {
+        // start conversion to binary
+        for (int i = 0; i < program.size(); i++) {
             bin.add(inst2bin(program.get(i)));
         }
 
-        //print conversion
-        for(int i = 0; i < bin.size(); i++)
-        {
+        // print conversion
+        for (int i = 0; i < bin.size(); i++) {
             System.out.println(bin.get(i));
         }
 
@@ -95,20 +93,19 @@ public class lab2 {
                 // removes comments from code
                 line = filtercomments(line);
                 // removes whitespace from votes
-                //line = filter(line);
+                // line = filter(line);
 
-                line = line.replace("\n","");
-                line = line.replace("\r","");
-                line = line.replace("\t","");
-                line = line.replace("#","");
-                line = line.replace(" ","");
+                line = line.replace("\n", "");
+                line = line.replace("\r", "");
+                line = line.replace("\t", "");
+                line = line.replace("#", "");
+                line = line.replace(" ", "");
 
                 // adding filtered line to list
-                if (!(line == ""))
-                {
+                if (!(line == "")) {
                     lines.add(line);
                 }
-                
+
             }
             fileread.close();
             // return array of lines
@@ -135,14 +132,24 @@ public class lab2 {
     // passes line to line filtering function
     public static void thirdpass(ArrayList lines) {
         String test[];
+        String test2[];
+        ArrayList<String> list2 = new ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
             String line = (String) lines.get(i);
-            // if label and j/jal instruction are on the same line
-            // replaces colon with whitespaces and splits into list
-            if (line.contains(":") && !line.contains("$")) {
+            if (line.contains(":") && !line.contains("j") && !line.contains("$")) {
                 line = line.trim();
                 line = line.replace(":", " ");
                 test = line.split(" ");
+                list2.add(test[0]);
+            }
+            // if label and j/jal instruction are on the same line
+            // replaces colon with whitespaces and splits into list
+            else if (line.contains(":") && !line.contains("$")) {
+                line = line.trim();
+                line = line.replace(":", " ");
+                test = line.split(" ");
+                list2.add(test[1]);
+                list2.add(test[2]);
             }
             // if label and any other instruction are on the same line
             else if (line.contains(":") && line.contains("$")) {
@@ -150,28 +157,67 @@ public class lab2 {
                 line = line.replace(":", " ");
                 line = line.replace("$", " $");
                 test = line.split(" ");
+                list2.add(test[1]);
+                list2.add(test[2]);
+                list2.add(test[3]);
+                list2.add(test[4]);
             }
             // if line doesn't contain label but is j/jal instruction
             else if (!line.contains("$") && line != "") {
                 line = line.trim();
                 test = line.split(" ");
+                list2.add(test[0]);
+                 list2.add(test[1]);
+            }
+            // lw or sw instruction
+            else if (line.contains("(")) {
+                // split instruction off main string
+                test = line.split("\\$", 2);
+                // add instruction to list
+                list2.add(test[0]);
+                // replace $ that was split off
+                test[1] = "$" + test[1];
+                // split current string on comma
+                test2 = test[1].split(",");
+                // add first register to list
+                list2.add(test2[0]);
+                // separate immediate and add to list
+                test2 = test2[1].split("\\(");
+                list2.add(test2[0]);
+                // remove closing parenthese and add second reg to list
+                test2[1] = test2[1].replace(")", "");
+                list2.add(test2[1]);
             }
             // if line contains any other instruction other than j/jal
             else {
                 // remove whitespace from line
-                line = filter(line);
+                // line = filter(line);
                 // strip whitespace
-                line = line.replaceAll("\\s", "");
-                line = line.replace("$", " $");
-                test = line.split(" ");
+                // add$t0,$t1,$1
+                // line = line.split("$",2)
+                // [add, t0,$t1,$t1]
+                //
+                // line = line.replaceAll("\\s", "");
+                // line = line.replace("$", " $");
+                // line = line.replace(",", "");
+                test = line.split("\\$", 2);
+                list2.add(test[0]);
+                test[1] = "$" + test[1];
+                test2 = test[1].split(",");
+                list2.add(test2[0]);
+                list2.add(test2[1]);
+                list2.add(test2[2]);
+
             }
 
-            //call function to take parsed data and fill out instruction fields
-            //then add to list of instructions
-            Instruction lineData = fillInstructData(test);
+            // call function to take parsed data and fill out instruction fields
+            // then add to list of instructions
+            Instruction lineData = fillInstructData(list2);
             program.add(lineData);
+            list2.clear();
 
         }
+
         // check if present in hashtable, if it is go to that line + 1(label handling)
         // check other hashmap for instruction, registers, and binary conversion
     }
@@ -182,7 +228,7 @@ public class lab2 {
         if (line.contains(":")) {
             System.out.println(line);
             System.out.println(linenum);
-            lineLabel.put(line,linenum);
+            lineLabel.put(line, linenum);
         }
     }
 
@@ -212,95 +258,78 @@ public class lab2 {
         return filtered;
     }
 
-    public static Instruction fillInstructData(String[] parsedLine){
-        //define new instruction to fill out
+    public static Instruction fillInstructData(ArrayList<String> parsedLine) {
+        // define new instruction to fill out
         Instruction data = new Instruction();
 
-        //test what kind of instruction we are dealing with
-        if (type.get(parsedLine[0]) == "R")
-        {   
-            //example add  $t0, $t1, $t2
-            //        name rd,  rs,  rt
-            //fill out instruction name, opcode and function
-            data.instruct = parsedLine[0]; 
+        // test what kind of instruction we are dealing with
+        if (type.get(parsedLine.get(0)) == "R") {
+            // example add $t0, $t1, $t2
+            // name rd, rs, rt
+            // fill out instruction name, opcode and function
+            data.instruct = parsedLine.get(0);
             data.opcode = opcode.get(data.instruct);
             data.func = func.get(data.instruct);
 
-            //based on instruction name, decide what values from 
-            //string array get pased into instruction data
-            if((data.instruct == "sll") | (data.instruct == "srl"))
-            {
-                //example sll  $t0, $t1, 4
-                //        name  rd,  rt, shmat
-                data.rd = reg.get(parsedLine[1]);
-                data.rt = reg.get(parsedLine[2]);
-                data.shamt = Integer.parseInt(parsedLine[3]);
-            }
-            else if (data.instruct == "jr")
-            {   
-                //example jr   $t0
-                //        name  rs
-                data.rs = data.rs = reg.get(parsedLine[2]);
-            }
-            else
-            {
-                //example add  $t0, $t1, $t2
-                //        name rd,  rs,  rt
-                data.rd = reg.get(parsedLine[1]);
-                data.rs = reg.get(parsedLine[2]);
-                data.rt = reg.get(parsedLine[3]);
+            // based on instruction name, decide what values from
+            // string array get pased into instruction data
+            if ((data.instruct == "sll") | (data.instruct == "srl")) {
+                // example sll $t0, $t1, 4
+                // name rd, rt, shmat
+                data.rd = reg.get(parsedLine.get(1));
+                data.rt = reg.get(parsedLine.get(2));
+                data.shamt = Integer.parseInt(parsedLine.get(3));
+            } else if (data.instruct == "jr") {
+                // example jr $t0
+                // name rs
+                data.rs = data.rs = reg.get(parsedLine.get(2));
+            } else {
+                // example add $t0, $t1, $t2
+                // name rd, rs, rt
+                data.rd = reg.get(parsedLine.get(1));
+                data.rs = reg.get(parsedLine.get(2));
+                data.rt = reg.get(parsedLine.get(3));
             }
 
-
-
-        }
-        else if (type.get(parsedLine[0]) == "I")
-        {
-            //example addi $t0, $t1, 8
-            //        name rt,  rs,  immediate
-            //fill out instruction name and opcode
-            data.instruct = parsedLine[0]; 
+        } else if (type.get(parsedLine.get(0)) == "I") {
+            // example addi $t0, $t1, 8
+            // name rt, rs, immediate
+            // fill out instruction name and opcode
+            data.instruct = parsedLine.get(0);
             data.opcode = opcode.get(data.instruct);
 
-            if ((data.instruct == "beq") | (data.instruct == "bne"))
-            {
-                //example beq  $t0, $t1, label
-                //        name rs,  rt,  ?
-                data.rs = reg.get(parsedLine[1]);
-                data.rt = reg.get(parsedLine[2]);
-                //may need to fill out immediate with label?
+            if ((data.instruct.contains("beq")) | (data.instruct.contains("bne"))) {
+                // example beq $t0, $t1, label
+                // name rs, rt, ?
+                data.rs = reg.get(parsedLine.get(1));
+                data.rt = reg.get(parsedLine.get(2));
+                // may need to fill out immediate with label?
 
+            } else if (data.instruct.contains("lw") | data.instruct.contains("sw")) {
+                // example lw $t0, 12($s2)
+                // name rt, immediate(rs)
+                data.rt = reg.get(parsedLine.get(1));
+                data.rs = reg.get(parsedLine.get(3));
+                data.immediate = Integer.parseInt(parsedLine.get(2));
+            } else {
+                // example addi $t0, $t1, 8
+                // name rt, rs, immediate
+                data.rt = reg.get(parsedLine.get(1));
+                data.rs = reg.get(parsedLine.get(2));
+                data.immediate = Integer.parseInt(parsedLine.get(3));
             }
-            else if ((data.instruct == "lw") | (data.instruct == "sw"))
-            {
-                //example lw   $t0, 12($s2)
-                //        name rt,  immediate(rs)
-                data.rt = reg.get(parsedLine[1]);
-                data.rs = reg.get(parsedLine[3]);
-                data.immediate = Integer.parseInt(parsedLine[2]);
-            }
-            else
-            {
-                //example addi $t0, $t1, 8
-                //        name rt,  rs,  immediate
-                data.rt = reg.get(parsedLine[1]);
-                data.rs = reg.get(parsedLine[2]);
-                data.immediate = Integer.parseInt(parsedLine[3]);
-            }
-        }
-        else if (type.get(parsedLine[0]) == "J")
-        {
-            //example j     label
-            //        name  addr
-            //fill out instruction name and opcode
-            data.instruct = parsedLine[0]; 
+        } else if (type.get(parsedLine.get(0)) == "J") {
+            // example j label
+            // name addr
+            // fill out instruction name and opcode
+            data.instruct = parsedLine.get(0);
             data.opcode = opcode.get(data.instruct);
-            data.address = lineLabel.get(parsedLine[0]);
-            
+            data.address = lineLabel.get(parsedLine.get(0));
+
         }
 
         return data;
-    } 
+    }
 
     public static int inst2bin(Instruction inst) {
         int binary = 0;
