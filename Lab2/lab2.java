@@ -72,7 +72,7 @@ public class lab2 {
 
         // print conversion
         for (int i = 0; i < bin.size(); i++) {
-            System.out.println(bin.get(i));
+            System.out.println((bin.get(i)).toBinaryString(i));
         }
 
     }
@@ -99,7 +99,10 @@ public class lab2 {
                 line = line.replace("\r", "");
                 line = line.replace("\t", "");
                 line = line.replace("#", "");
-                line = line.replace(" ", "");
+                if (!line.contains("j"))
+                {
+                    line = line.replace(" ", ""); 
+                }
 
                 // adding filtered line to list
                 if (!(line == "")) {
@@ -204,9 +207,10 @@ public class lab2 {
                 list2.add(test[0]);
                 test[1] = "$" + test[1];
                 test2 = test[1].split(",");
-                list2.add(test2[0]);
-                list2.add(test2[1]);
-                list2.add(test2[2]);
+                for (int j = 0; j < test2.length; j++)
+                {
+                    list2.add(test2[j]);
+                }
 
             }
 
@@ -224,11 +228,13 @@ public class lab2 {
 
     // finds line or lines that contain labels
     // will have these two numbers into hashmap upon ...
+    //should this just parse label? or test label and parse if a label?
     public static void label(String line, int linenum) {
         if (line.contains(":")) {
+            String[] temp = line.split(":");
             System.out.println(line);
             System.out.println(linenum);
-            lineLabel.put(line, linenum);
+            lineLabel.put(temp[0], linenum);
         }
     }
 
@@ -262,8 +268,9 @@ public class lab2 {
         // define new instruction to fill out
         Instruction data = new Instruction();
 
+        data.type = type.get(parsedLine.get(0));
         // test what kind of instruction we are dealing with
-        if (type.get(parsedLine.get(0)) == "R") {
+        if (data.type == "R") {
             // example add $t0, $t1, $t2
             // name rd, rs, rt
             // fill out instruction name, opcode and function
@@ -273,16 +280,16 @@ public class lab2 {
 
             // based on instruction name, decide what values from
             // string array get pased into instruction data
-            if ((data.instruct == "sll") | (data.instruct == "srl")) {
+            if ((data.instruct.contains("sll")) | (data.instruct.contains("srl"))) {
                 // example sll $t0, $t1, 4
                 // name rd, rt, shmat
                 data.rd = reg.get(parsedLine.get(1));
                 data.rt = reg.get(parsedLine.get(2));
                 data.shamt = Integer.parseInt(parsedLine.get(3));
-            } else if (data.instruct == "jr") {
+            } else if (data.instruct.contains("jr")) {
                 // example jr $t0
                 // name rs
-                data.rs = data.rs = reg.get(parsedLine.get(2));
+                data.rs = data.rs = reg.get(parsedLine.get(1));
             } else {
                 // example add $t0, $t1, $t2
                 // name rd, rs, rt
@@ -291,7 +298,7 @@ public class lab2 {
                 data.rt = reg.get(parsedLine.get(3));
             }
 
-        } else if (type.get(parsedLine.get(0)) == "I") {
+        } else if (data.type == "I") {
             // example addi $t0, $t1, 8
             // name rt, rs, immediate
             // fill out instruction name and opcode
@@ -318,13 +325,13 @@ public class lab2 {
                 data.rs = reg.get(parsedLine.get(2));
                 data.immediate = Integer.parseInt(parsedLine.get(3));
             }
-        } else if (type.get(parsedLine.get(0)) == "J") {
+        } else if (data.type == "J") {
             // example j label
             // name addr
             // fill out instruction name and opcode
             data.instruct = parsedLine.get(0);
             data.opcode = opcode.get(data.instruct);
-            data.address = lineLabel.get(parsedLine.get(0));
+            data.address = lineLabel.get(parsedLine.get(1));
 
         }
 
