@@ -1,3 +1,6 @@
+//Nathan Jaggers
+//Storm Randolf
+
 package Lab2;
 
 import java.io.File;
@@ -61,7 +64,8 @@ public class lab2 {
         // read in file, get rid of white spaces and comments
         // parse data and fill list of instructions with data
         ArrayList<String> lines;
-        lines = firstpass(args[0]);
+        //lines = firstpass(args[0]);
+        lines = firstpass("./Lab2/test4.asm");
         secondpass(lines);
         thirdpass(lines);
         // System.out.println("test successful");
@@ -77,6 +81,9 @@ public class lab2 {
             // bin.add(inst2bin(program.get(i)));
             inst2bin2(program.get(i));
             System.out.println();
+            if(program.get(i).instruct.contains("invalid")){
+                break;
+            }
         }
 
         // //print conversion
@@ -142,7 +149,7 @@ public class lab2 {
             }
         }
     }
-
+    
     // will read file line by line
     // passes line to line filtering function
     public static void thirdpass(ArrayList lines) {
@@ -352,6 +359,13 @@ public class lab2 {
             data.address = lineLabel.get(parsedLine.get(1));
 
         }
+        else if (!lineLabel.containsKey(parsedLine.get(0))){
+
+            //invalid instruction
+            data.type = "invalid";
+            data.instruct = String.format("invalid instruction: %s",parsedLine.get(0));
+        
+        }
 
         return data;
     }
@@ -378,6 +392,9 @@ public class lab2 {
             binary |= ((inst.opcode & 63) << 26); // 31-26
             binary |= ((inst.address & 31) << 0); // 25-0
 
+        }
+        else if (inst.type.contains("invalid")){
+            System.out.print(inst.instruct);
         }
 
         return binary;
@@ -429,6 +446,9 @@ public class lab2 {
             System.out.print((String.format("%6s", Integer.toBinaryString(inst.opcode)).replace(' ', '0')));
             System.out.print(" ");
             System.out.print((String.format("%26s", Integer.toBinaryString(inst.address)).replace(' ', '0')));
+        }
+        else if (inst.type.contains("invalid")){
+            System.out.print(inst.instruct);
         }
 
     }
