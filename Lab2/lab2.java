@@ -23,6 +23,7 @@ public class lab2 {
 
         String type;
         String instruct;
+        int linenum;
         int opcode;
         int rs;
         int rt;
@@ -49,7 +50,7 @@ public class lab2 {
     }
 
     public static void main(String[] args) {
-        System.out.println("Hello World"); // prints Hello World
+        // System.out.println("Hello World"); // prints Hello World
 
         // init hash tables
         init_type(type);
@@ -60,20 +61,28 @@ public class lab2 {
         // read in file, get rid of white spaces and comments
         // parse data and fill list of instructions with data
         ArrayList<String> lines;
-        lines = firstpass("./Lab2/test1.asm");
+        lines = firstpass(args[0]);
         secondpass(lines);
         thirdpass(lines);
-        System.out.println("test successful");
+        // System.out.println("test successful");
 
-        // start conversion to binary
+        // short num = 10;
+        // int num2 = -1;
+        // System.out.println(Integer.toBinaryString(num));
+        // System.out.println(Integer.toBinaryString(num2));
+        // System.out.println(Integer.bitCount(num));
+
+        // // start conversion to binary
         for (int i = 0; i < program.size(); i++) {
-            bin.add(inst2bin(program.get(i)));
+            // bin.add(inst2bin(program.get(i)));
+            inst2bin2(program.get(i));
+            System.out.println();
         }
 
-        // print conversion
-        for (int i = 0; i < bin.size(); i++) {
-            System.out.println((bin.get(i)).toBinaryString(i));
-        }
+        // //print conversion
+        // for (int i = 0; i < bin.size(); i++) {
+        // System.out.println((bin.get(i)).toBinaryString(i));
+        // }
 
     }
 
@@ -99,9 +108,8 @@ public class lab2 {
                 line = line.replace("\r", "");
                 line = line.replace("\t", "");
                 line = line.replace("#", "");
-                if (!line.contains("j"))
-                {
-                    line = line.replace(" ", ""); 
+                if (!line.contains("j")) {
+                    line = line.replace(" ", "");
                 }
 
                 // adding filtered line to list
@@ -123,10 +131,14 @@ public class lab2 {
     // will read each index and check if it is a label
     // would we need to account for jumps?
     public static void secondpass(ArrayList lines) {
+        int linenum = 0;
         for (int i = 0; i < lines.size(); i++) {
             String line = (String) lines.get(i);
             if (line.contains(":")) {
-                label(line, i + 1);
+                label(line, linenum);
+            }
+            if (line.contains("$") || line.contains(",") || line.contains("j")) {
+                linenum++;
             }
         }
     }
@@ -136,6 +148,7 @@ public class lab2 {
     public static void thirdpass(ArrayList lines) {
         String test[];
         String test2[];
+        int linenumber = 0;
         ArrayList<String> list2 = new ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
             String line = (String) lines.get(i);
@@ -170,7 +183,7 @@ public class lab2 {
                 line = line.trim();
                 test = line.split(" ");
                 list2.add(test[0]);
-                 list2.add(test[1]);
+                list2.add(test[1]);
             }
             // lw or sw instruction
             else if (line.contains("(")) {
@@ -207,8 +220,7 @@ public class lab2 {
                 list2.add(test[0]);
                 test[1] = "$" + test[1];
                 test2 = test[1].split(",");
-                for (int j = 0; j < test2.length; j++)
-                {
+                for (int j = 0; j < test2.length; j++) {
                     list2.add(test2[j]);
                 }
 
@@ -216,24 +228,27 @@ public class lab2 {
 
             // call function to take parsed data and fill out instruction fields
             // then add to list of instructions
-            Instruction lineData = fillInstructData(list2);
-            program.add(lineData);
+            Instruction lineData = fillInstructData(list2, linenumber);
+            if (lineData.instruct != "") {
+                program.add(lineData);
+                linenumber++;
+            }
             list2.clear();
 
         }
-
+        // j test1
         // check if present in hashtable, if it is go to that line + 1(label handling)
         // check other hashmap for instruction, registers, and binary conversion
     }
 
     // finds line or lines that contain labels
     // will have these two numbers into hashmap upon ...
-    //should this just parse label? or test label and parse if a label?
+    // should this just parse label? or test label and parse if a label?
     public static void label(String line, int linenum) {
         if (line.contains(":")) {
             String[] temp = line.split(":");
-            System.out.println(line);
-            System.out.println(linenum);
+            // System.out.println(line);
+            // System.out.println(linenum);
             lineLabel.put(temp[0], linenum);
         }
     }
@@ -264,11 +279,12 @@ public class lab2 {
         return filtered;
     }
 
-    public static Instruction fillInstructData(ArrayList<String> parsedLine) {
+    public static Instruction fillInstructData(ArrayList<String> parsedLine, int instNum) {
         // define new instruction to fill out
         Instruction data = new Instruction();
 
         data.type = type.get(parsedLine.get(0));
+        data.linenum = instNum;
         // test what kind of instruction we are dealing with
         if (data.type == "R") {
             // example add $t0, $t1, $t2
@@ -310,6 +326,7 @@ public class lab2 {
                 // name rs, rt, ?
                 data.rs = reg.get(parsedLine.get(1));
                 data.rt = reg.get(parsedLine.get(2));
+                data.immediate = lineLabel.get(parsedLine.get(3)) - (data.linenum + 1);
                 // may need to fill out immediate with label?
 
             } else if (data.instruct.contains("lw") | data.instruct.contains("sw")) {
@@ -331,6 +348,7 @@ public class lab2 {
             // fill out instruction name and opcode
             data.instruct = parsedLine.get(0);
             data.opcode = opcode.get(data.instruct);
+            // arithmetic
             data.address = lineLabel.get(parsedLine.get(1));
 
         }
@@ -363,6 +381,56 @@ public class lab2 {
         }
 
         return binary;
+    }
+
+    public static void inst2bin2(Instruction inst) {
+
+        if (inst.type == "R") {
+            // type R instruction
+            // binary |= ((inst.opcode & 63) << 26); // 31-26
+            // binary |= ((inst.rs & 31) << 21); // 25-21
+            // binary |= ((inst.rt & 31) << 16); // 20-16
+            // binary |= ((inst.rd & 31) << 11); // 15-11
+            // binary |= ((inst.shamt & 31) << 6); // 10-6
+            // binary |= ((inst.func & 63) << 0); // 5-0
+            System.out.print((String.format("%6s", Integer.toBinaryString(inst.opcode)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out.print((String.format("%5s", Integer.toBinaryString(inst.rs)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out.print((String.format("%5s", Integer.toBinaryString(inst.rt)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out.print((String.format("%5s", Integer.toBinaryString(inst.rd)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out.print((String.format("%5s", Integer.toBinaryString(inst.shamt)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out.print((String.format("%6s", Integer.toBinaryString(inst.func)).replace(' ', '0')));
+
+        } else if (inst.type == "I") {
+            // type I instruction
+            // binary |= ((inst.opcode & 63) << 26); // 31-26
+            // binary |= ((inst.rs & 31) << 21); // 25-21
+            // binary |= ((inst.rt & 31) << 16); // 20-16
+            // binary |= ((inst.immediate & 0xFFFF) << 0); // 15-0
+
+            System.out.print((String.format("%6s", Integer.toBinaryString(inst.opcode)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out.print((String.format("%5s", Integer.toBinaryString(inst.rs)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out.print((String.format("%5s", Integer.toBinaryString(inst.rt)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out
+                    .print((String.format("%16s", Integer.toBinaryString(0xFFFF & inst.immediate)).replace(' ', '0')));
+
+        } else if (inst.type == "J") {
+            // type J instruction
+            // binary |= ((inst.opcode & 63) << 26); // 31-26
+            // binary |= ((inst.address & 31) << 0); // 25-0
+
+            System.out.print((String.format("%6s", Integer.toBinaryString(inst.opcode)).replace(' ', '0')));
+            System.out.print(" ");
+            System.out.print((String.format("%26s", Integer.toBinaryString(inst.address)).replace(' ', '0')));
+        }
+
     }
 
     // initialize instruction type hashmap
