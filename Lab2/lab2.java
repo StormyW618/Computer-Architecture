@@ -1,5 +1,17 @@
-//Nathan Jaggers
-//Storm Randolf
+/**
+ * Programmers: Nathan Jaggers, Storm Randolph
+ * 
+ * CPE 315 - Computer Architecture
+ * Dr.Seng
+ * Spring 2022
+ * 
+ * Lab 2 - MIPS Assembler
+ * 
+ * Description: To build a MIPS simulator 
+ *              front-end assembler/parser.
+ *              Takes an assembly file and 
+ *              converts it into binary.
+ */
 
 package Lab2;
 

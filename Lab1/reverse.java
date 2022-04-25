@@ -1,3 +1,18 @@
+/**
+ * Programmers: Nathan Jaggers, Storm Randolph
+ * 
+ * CPE 315 - Computer Architecture
+ * Dr.Seng
+ * Spring 2022
+ * 
+ * Lab 1 - Programing with MIPS
+ * 
+ * Description: Series of small programs that 
+ *              allow for the practice of programming
+ *              in the MIPS assembly language. Here is 
+ *              the Java equivalent to the reverse.asm
+ */
+
 package Lab1;
 
 public class reverse {
