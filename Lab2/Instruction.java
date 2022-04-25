@@ -10,6 +10,7 @@ public class Instruction {
 
     String type; //instruction type (R,I,J)
     String instruct; //name of instruction (e.g add)
+    int instOrder; //number holding order of instruction (e.g this is the 4th instruction)
     int opcode; //opcode for instruction
     int rs; //register for instruction
     int rt; //register for instruction
@@ -24,6 +25,7 @@ public class Instruction {
         //initialize all to default
         type = "";
         instruct = "";
+        instOrder = -1;
         opcode = 0;
         rs = 0;
         rt = 0;
