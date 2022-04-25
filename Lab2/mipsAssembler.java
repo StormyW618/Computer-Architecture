@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class mipsAssembler {
     
@@ -301,90 +303,45 @@ public class mipsAssembler {
         }
 
         public static void thirdpass() {
-            // takes filename as input
             // will read file line by line
             // passes line to line filtering function
-            String test[];
-            String test2[];
+            String splitLine[];
             int linenumber = 0;
-            ArrayList<String> list2 = new ArrayList<>();
+            ArrayList<String> instlist = new ArrayList<>();
 
             for (int i = 0; i < lines.size(); i++) {
 
                 String line = (String) lines.get(i);
 
+                //Test if label on the line
+                //if so is it alone?
                 if (line.contains(":") && !line.contains("j") && !line.contains("$")) {
                     line = line.trim();
                     line = line.replace(":", " ");
-                    test = line.split(" ");
-                    list2.add(test[0]);
+                    splitLine = line.split(" ");
+                    instlist.add(splitLine[0]);
                 }
                 // if label and j/jal instruction are on the same line
                 // replaces colon with whitespaces and splits into list
-                else if (line.contains(":") && !line.contains("$")) {
+                else if (line.contains(":") && (line.contains("$") || (line.contains("j")))) {
                     line = line.trim();
                     line = line.replace(":", " ");
-                    test = line.split(" ");
-                    list2.add(test[1]);
-                    list2.add(test[2]);
+                    splitLine = line.split(" ");
+                    instlist = parseInstruction(splitLine[1],instlist);
                 }
                 // if label and any other instruction are on the same line
-                else if (line.contains(":") && line.contains("$")) {
-                    line = filter(line);
-                    line = line.replace(":", " ");
-                    line = line.replace("$", " $");
-                    test = line.split(" ");
-                    list2.add(test[1]);
-                    list2.add(test[2]);
-                    list2.add(test[3]);
-                    list2.add(test[4]);
-                }
-                // if line doesn't contain label but is j/jal instruction
-                else if (!line.contains("$") && line != "") {
-                    line = line.trim();
-                    test = line.split(" ");
-                    list2.add(test[0]);
-                    list2.add(test[1]);
-                }
-                // lw or sw instruction
-                else if (line.contains("(")) {
-                    // split instruction off main string
-                    test = line.split("\\$", 2);
-                    // add instruction to list
-                    list2.add(test[0]);
-                    // replace $ that was split off
-                    test[1] = "$" + test[1];
-                    // split current string on comma
-                    test2 = test[1].split(",");
-                    // add first register to list
-                    list2.add(test2[0]);
-                    // separate immediate and add to list
-                    test2 = test2[1].split("\\(");
-                    list2.add(test2[0]);
-                    // remove closing parenthese and add second reg to list
-                    test2[1] = test2[1].replace(")", "");
-                    list2.add(test2[1]);
-                }
-                // if line contains any other instruction other than j/jal
-                else {
-                    test = line.split("\\$", 2);
-                    list2.add(test[0]);
-                    test[1] = "$" + test[1];
-                    test2 = test[1].split(",");
-                    for (int j = 0; j < test2.length; j++) {
-                        list2.add(test2[j]);
-                    }
-    
+                else if (!line.contains(":")) {
+                    instlist = parseInstruction(line,instlist);
                 }
     
                 // call function to take parsed data and fill out instruction fields
                 // then add to list of instructions
-                Instruction lineData = fillInstructData(list2, linenumber);
+                Instruction lineData = fillInstructData(instlist, linenumber);
                 if (lineData.instruct != "") {
                     program.add(lineData);
                     linenumber++;
                 }
-                list2.clear();
+                instlist.clear();
     
             }
         }
@@ -441,6 +398,55 @@ public class mipsAssembler {
         //would be fun to include function that then recreates the asm file as text
 
         //data manip
+        public static ArrayList<String> parseInstruction(String subLine, ArrayList<String> currentParse)
+        {      
+            String[] parsedInst;
+            ArrayList<String> newParse = currentParse;
+            //Test for type of instruction
+            
+            if(subLine.contains("j") && !subLine.contains("$"))
+            {
+                //if the instruction is a j/jal
+                //replaces colon with whitespaces and splits into list
+                subLine = subLine.trim();
+                parsedInst = subLine.split(" ");
+                newParse.add(parsedInst[0]);
+                newParse.add(parsedInst[1]);
+
+            }
+            else if (subLine.contains("(")) {
+                // split instruction off main string
+                parsedInst = subLine.split("\\$", 2);
+                // add instruction to list
+                newParse.add(parsedInst[0]);
+                // replace $ that was split off
+                parsedInst[1] = "$" + parsedInst[1];
+                // split current string on comma
+                parsedInst = parsedInst[1].split(",");
+                // add first register to list
+                newParse.add(parsedInst[0]);
+                // separate immediate and add to list
+                parsedInst = parsedInst[1].split("\\(");
+                newParse.add(parsedInst[0]);
+                // remove closing parenthese and add second reg to list
+                parsedInst[1] = parsedInst[1].replace(")", "");
+                newParse.add(parsedInst[1]);
+            }
+            else
+            {
+                parsedInst = subLine.split("\\$", 2);
+                newParse.add(parsedInst[0]);
+                parsedInst[1] = "$" + parsedInst[1];
+                parsedInst = parsedInst[1].split(",");
+                for (int j = 0; j < parsedInst.length; j++) {
+                    newParse.add(parsedInst[j]);
+                }
+            }
+
+            //return result
+            return newParse;
+        }
+
         public static Instruction fillInstructData(ArrayList<String> parsedLine, int instNum) {
             // define new instruction to fill out
             Instruction data = new Instruction();
