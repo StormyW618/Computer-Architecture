@@ -10,6 +10,10 @@ public class helloWorld {
     public static void main(String []args) {
        System.out.println("Hello World"); // prints Hello World
 
+
+       String test = "hello";
+
+       System.out.println(test.length());
     }
 
  }

@@ -80,7 +80,16 @@ public class mipsEmulator {
          case 's':
             // step through the program
             // single or multiple based on input
-            step();
+            if (userInput.length() > 1)
+            {
+               //get number of steps after s command
+               step(Integer.parseInt(userInput.substring(1)));
+            }
+            else
+            {
+               //run step command for 1 iteration
+               step(1);
+            }
             break;
 
          case 'r':
@@ -123,9 +132,17 @@ public class mipsEmulator {
 
    }
 
-   public void step()
+   public void step(int numOfSteps)
    {
+      // uses program array list and executes
+      // a specified number of instructions. Number
+      // of instructions process id determined by 
+      // value passed into function 
 
+      // switch()
+      // {
+
+      // }
    }
 
    public void run()
@@ -145,6 +162,6 @@ public class mipsEmulator {
 
    public void quit()
    {
-
+      System.out.println("Quitting Program...");
    }
 }

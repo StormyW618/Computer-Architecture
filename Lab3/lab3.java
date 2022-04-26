@@ -20,6 +20,8 @@ package Lab3;
 
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import Lab2.mipsAssembler;
+import Lab3.mipsEmulator;
 
 public class lab3 {
 
