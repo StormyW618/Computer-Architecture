@@ -24,18 +24,21 @@ import java.util.Scanner;
 public class lab3 {
 
    public static void main(String[] args) {
-      System.out.println("Hello World"); // prints Hello World
-      Scanner user_input = new Scanner(System.in);
-      // checking if q will be first command entered(?)
       if (args.length == 1) {
          try {
+            // scanner to access user input from console
+            Scanner user_input = new Scanner(System.in);
             while (true) {
-               System.out.println("mips>");
-               String user = user_input.nextLine();
+               System.out.print("mips>");// printing prompt
+               String user = user_input.nextLine();// obtaining user input
+               // checking if quit command entered
                if (user.contains("q")) {
                   // close scanner
                   user_input.close();
-                  // pass to command function
+                  // pass to command function takes string input
+
+                  // break from while loop
+                  break;
                } else {
                   System.out.println("program continues");
                   // pass to command function
@@ -46,64 +49,28 @@ public class lab3 {
          }
       } else {
          System.out.println("ASM & Script");
+         try {
+            // no user input, read from script file
+            Scanner file_input = new Scanner(args[2]);
+            while (true) {
+               String file = file_input.nextLine();// obtaining file input
+               System.out.print("mips>" + file);// printing prompt
+               // checking if quit command entered
+               if (file.contains("q")) {
+                  // close scanner
+                  file_input.close();
+                  // pass to command function takes string input
+
+                  // break from while loop
+                  break;
+               } else {
+                  System.out.println("program continues");
+                  // pass to command function
+               }
+            }
+         } catch (IllegalStateException e) {
+            System.out.println("Scanner was closed");
+         }
       }
-   }
-
-   public static void command(String userInput) {
-      // This function will take a string, trim
-      // it down and test it to see if it is a
-      // valid command. If it is, it will go to
-      // the appropriate section in the case
-      // statement and execute the code for said
-      // command
-
-      userInput = userInput.trim();
-
-      switch (userInput.charAt(0)) {
-
-         case 'h':
-            // show help
-
-            break;
-
-         case 'd':
-            // dump register state
-
-            break;
-
-         case 's':
-            // step through the program
-            // single or multiple based on input
-
-            break;
-
-         case 'r':
-            // run the program in its entirety
-
-            break;
-
-         case 'm':
-            // display data memory from location num1 to num2
-
-            break;
-
-         case 'c':
-            // clear all registers, memory, and the program counter to 0
-
-            break;
-
-         case 'q':
-            // exit the program
-
-            break;
-
-         case default:
-            // command not found. Notify user
-            System.out.print("Command not found. Please try again\n");
-
-            break;
-
-      }
-
    }
 }
