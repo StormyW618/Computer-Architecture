@@ -28,6 +28,10 @@ public class lab3 {
    public static void main(String[] args) {
       if (args.length == 1) {
          try {
+            //define mips objects
+            mipsAssembler test1Asm = new mipsAssembler("Lab3/test1.asm"); 
+            mipsEmulator test1Em = new mipsEmulator(test1Asm);
+            
             // scanner to access user input from console
             Scanner user_input = new Scanner(System.in);
             while (true) {
@@ -38,12 +42,13 @@ public class lab3 {
                   // close scanner
                   user_input.close();
                   // pass to command function takes string input
-
+                  test1Em.command(user);
                   // break from while loop
                   break;
                } else {
-                  System.out.println("program continues");
                   // pass to command function
+                  test1Em.command(user);
+                  System.out.println("program continues");
                }
             }
          } catch (IllegalStateException e) {
