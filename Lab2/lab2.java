@@ -1,3 +1,18 @@
+/**
+ * Programmers: Nathan Jaggers, Storm Randolph
+ * 
+ * CPE 315 - Computer Architecture
+ * Dr.Seng
+ * Spring 2022
+ * 
+ * Lab 2 - MIPS Assembler
+ * 
+ * Description: To build a MIPS simulator 
+ *              front-end assembler/parser.
+ *              Takes an assembly file and 
+ *              converts it into binary.
+ */
+
 package Lab2;
 
 import java.io.File;
@@ -5,39 +20,9 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.HashMap;
+import Lab2.mipsAssembler;
 
 public class lab2 {
-
-    // HashMap look up tables
-    // type?
-    // opcodes
-    // registers
-    // functions
-    // labels/address
-    // whatever else you need
-
-    // find efficeint way to initialize map
-    // maybe make function to help initialize it?
-    public HashMap<String, Integer> mapOpcode = new HashMap<>();
-
-    public class Instruction {
-
-        String type;
-        String opcode;
-        String rs;
-        String rt;
-        String rd;
-        String shamt;
-        String func;
-        String immediate;
-        String address;
-
-        // constructor
-
-        // functions
-        // one to help convert to binary
-        //
-    }
 
     public static void main(String[] args) {
         System.out.println("Hello World"); // prints Hello World
@@ -194,4 +179,12 @@ public class lab2 {
         opmap.put("subu", 0);
 
     }
-}
+
+        //define mips object
+        //mipsAssembler test = new mipsAssembler(args[0]);
+        mipsAssembler test = new mipsAssembler("Lab2/test1.asm");
+        //processing and parsing handled by the class
+
+        // //print out binary
+        // test.printBinary();
+    }
