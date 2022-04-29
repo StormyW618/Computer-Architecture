@@ -23,11 +23,11 @@ public class mipsAssembler {
         public static File asmFile; //assembly file
 
         //look up tables
-        public static HashMap<String, String>  type = new HashMap<>(); 
-        public static HashMap<String, Integer> opcode = new HashMap<>();
-        public static HashMap<String, Integer> func = new HashMap<>();
-        public static HashMap<String, Integer> reg = new HashMap<>();
-        public static HashMap<String, Integer> lineLabel = new HashMap<>();
+        public static HashMap<String, String>  type; 
+        public static HashMap<String, Integer> opcode;
+        public static HashMap<String, Integer> func;
+        public static HashMap<String, Integer> reg;
+        public static HashMap<String, Integer> lineLabel;
 
         //data
         public static ArrayList<String> lines; //holds file instruction lines as strings

@@ -13,6 +13,7 @@ import Lab2.Instruction;
 import Lab2.mipsAssembler;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class mipsEmulator {
 
@@ -25,7 +26,8 @@ public class mipsEmulator {
    int pc; // Program counter
    int[] registers; // register file
    int[] dataMemory; // memory to store and read data
-   ArrayList<Instruction> program;
+   ArrayList<Instruction> program; //list of instructions
+   HashMap<Integer, String> regReverse;
 
    // ---METHODS---
    // constructors
@@ -34,7 +36,11 @@ public class mipsEmulator {
       pc = 0;
       registers = new int[32];
       dataMemory = new int[8192];
+      regReverse = new HashMap<>();
       program = new ArrayList<>();
+
+      //init table
+      init_regRev(regReverse);
    }
 
    mipsEmulator(ArrayList<Instruction> assembledProgram) {
@@ -42,8 +48,11 @@ public class mipsEmulator {
       pc = 0;
       registers = new int[32];
       dataMemory = new int[8192];
-      // initialize program
+      regReverse = new HashMap<>();
+      // initialize program and table
       program = assembledProgram;
+      init_regRev(regReverse);
+      
    }
 
    mipsEmulator(mipsAssembler assembled) {
@@ -51,8 +60,10 @@ public class mipsEmulator {
       pc = 0;
       registers = new int[32];
       dataMemory = new int[8192];
-      // initialize program
+      regReverse = new HashMap<>();
+      // initialize program and table
       program = assembled.program;
+      init_regRev(regReverse);
    }
 
    // user commands
@@ -100,9 +111,9 @@ public class mipsEmulator {
 
          case 'm':
             // display data memory from location num1 to num2
-            
             //split string into list to properly parse out args num1 and num2
             String[] arr = userInput.split(" ");
+            //if(arr.length==1)
             int num1 = Integer.parseInt(arr[1]);
             int num2 = Integer.parseInt(arr[2]);
             memory(num1, num2);
@@ -143,9 +154,12 @@ public class mipsEmulator {
    public void dump()
    {
       System.out.println("pc = " + pc);
-      // for(int i = 0; i < 32; i++){
-         
-      // }
+      for(int i = 0; i < 32; i++)
+      {
+         System.out.printf("%s = %i\t", regReverse.get(i), registers[i]);
+         if (i%4==0)
+            System.out.println();   
+      }
    }
 
    public void step(int numOfSteps)
@@ -409,7 +423,7 @@ public class mipsEmulator {
 
    public void run()
    {
-
+      step(program.size()-pc);
    }
 
    public void memory(int num1, int num2)
@@ -434,4 +448,42 @@ public class mipsEmulator {
    {
       System.out.println("Quitting Program...");
    }
+
+   public void init_regRev(HashMap<Integer, String> regRevMap) {
+      // initialize register address hashmap
+      // registers are from 0-31
+      regRevMap.put(0,"$0");
+      regRevMap.put(1,"$at");
+      regRevMap.put(2,"$v0");
+      regRevMap.put(3,"$v1");
+      regRevMap.put(4,"$a0");
+      regRevMap.put(5,"$a1");
+      regRevMap.put(6,"$a2");
+      regRevMap.put(7,"$a3");
+      regRevMap.put(8,"$t0");
+      regRevMap.put(9,"$t1");
+      regRevMap.put(10,"$t2");
+      regRevMap.put(11,"$t3");
+      regRevMap.put(12,"$t4");
+      regRevMap.put(13,"$t5");
+      regRevMap.put(14,"$t6");
+      regRevMap.put(15,"$t7");
+      regRevMap.put(16,"$s0");
+      regRevMap.put(17,"$s1");
+      regRevMap.put(18,"$s2");
+      regRevMap.put(19,"$s3");
+      regRevMap.put(20,"$s4");
+      regRevMap.put(21,"$s5");
+      regRevMap.put(22,"$s6");
+      regRevMap.put(23,"$s7");
+      regRevMap.put(24,"$t8");
+      regRevMap.put(25,"$t9");
+      regRevMap.put(26,"$k0");
+      regRevMap.put(27,"$k1");
+      regRevMap.put(28,"$gp");
+      regRevMap.put(29,"$sp");
+      regRevMap.put(30,"$fp");
+      regRevMap.put(31,"$ra");
+  }
+
 }

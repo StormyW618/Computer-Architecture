@@ -11,9 +11,10 @@ public class helloWorld {
        System.out.println("Hello World"); // prints Hello World
 
 
-       String test = "hello";
+       String test = "m y";
+       String[] test1 = test.split(" ");
 
-       System.out.println(test.length());
+       System.out.println(test1[1]);
     }
 
  }
