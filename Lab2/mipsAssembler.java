@@ -319,6 +319,7 @@ public class mipsAssembler {
                     line = line.trim();
                     line = line.replace(":", " ");
                     splitLine = line.split(" ");
+                    splitLine = line.split(":");
                     instlist.add(splitLine[0]);
                 }
                 // if label and j/jal instruction are on the same line
@@ -327,6 +328,7 @@ public class mipsAssembler {
                     line = line.trim();
                     line = line.replace(":", " ");
                     splitLine = line.split(" ");
+                    splitLine = line.split(":");
                     instlist = parseInstruction(splitLine[1],instlist);
                 }
                 // if label and any other instruction are on the same line

@@ -8,17 +8,17 @@ public class Instruction {
      *be determined based on the type of instruction
      ************************************************************/
 
-    String type; //instruction type (R,I,J)
-    String instruct; //name of instruction (e.g add)
-    int instOrder; //number holding order of instruction (e.g this is the 4th instruction)
-    int opcode; //opcode for instruction
-    int rs; //register for instruction
-    int rt; //register for instruction
-    int rd; //register for instruction
-    int shamt; //shift ammount 
-    int func; //function to further define operation
-    int immediate; //16-bit immediate value
-    int address; //26-bit address
+    public String type; //instruction type (R,I,J)
+    public String instruct; //name of instruction (e.g add)
+    public int instOrder; //number holding order of instruction (e.g this is the 4th instruction)
+    public int opcode; //opcode for instruction
+    public int rs; //register for instruction
+    public int rt; //register for instruction
+    public int rd; //register for instruction
+    public int shamt; //shift ammount 
+    public int func; //function to further define operation
+    public int immediate; //16-bit immediate value
+    public int address; //26-bit address
 
     // constructor
     public Instruction() {

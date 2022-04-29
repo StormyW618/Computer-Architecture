@@ -12,6 +12,7 @@ package Lab3;
 import Lab2.Instruction;
 import Lab2.mipsAssembler;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class mipsEmulator {
 
@@ -98,8 +99,12 @@ public class mipsEmulator {
             break;
 
          case 'm':
-            // display data memory from location num1 to num2
-            memory();
+            
+            //split string into list to properly parse out args num1 and num2
+            String[] arr = userInput.split(" ");
+            int num1 = Integer.parseInt(arr[1]);
+            int num2 = Integer.parseInt(arr[2]);
+            memory(num1, num2);
             break;
 
          case 'c':
@@ -137,6 +142,10 @@ public class mipsEmulator {
    public void dump()
    {
 
+      System.out.println("pc = " + pc);
+      // for(int i = 0; i < 32; i++){
+         
+      // }
    }
 
    public void step(int numOfSteps)
@@ -150,6 +159,156 @@ public class mipsEmulator {
       // {
 
       // }
+      for (int i = 0; i < numOfSteps; i++)
+      {
+         switch(program.get(pc).instruct)
+         {
+            case "add":
+            //add rs and rt, store in rd
+            
+            break;
+            
+            case "addi":
+            //add rs and SignExtendedimmediate, store in rt
+            
+            break;
+            
+            case "addiu":
+            //add unsigned rs and SignExtendedimmediate, store in rt
+            
+            break;
+            
+            case "addu":
+            //add unsigned rs and rt, store in rd
+            
+            break;
+            
+            case "and":
+            //and rs and rt, store in rd
+            
+            break;
+            
+            case "andi":
+            //and rs and ZeroExtendedImm, store in rt
+            
+            break;
+            
+            case "beq":
+            //if rs == rt, pc = pc + 4 + BranchAddr
+            
+            break;
+            
+            case "bne":
+            //if rs == rt, pc = pc + 4 + BranchAddr
+            
+            break;
+            
+            case "j":
+            //pc = JumpAddr
+            
+            break;
+            
+            case "jal":
+            //store return address in $ra and jump to JumpAddress
+            //R[31] = pc + 4, pc = JumpAddr
+            
+            break;
+            
+            case "jr":
+            
+            break;
+            
+            case "lbu":
+            
+            break;
+            
+            case "lhu":
+            
+            break;
+            
+            case "ll":
+            
+            break;
+            
+            case "lui":
+            
+            break;
+            
+            case "lw":
+            
+            break;
+            
+            case "nor":
+            
+            break;
+            
+            case "or":
+            
+            break;
+            
+            case "ori":
+            
+            break;
+            
+            case "slt":
+            
+            break;
+            
+            case "slti":
+            
+            break;
+            
+            case "sltiu":
+            
+            break;
+            
+            case "sltu":
+            
+            break;
+            
+            case "sll":
+            
+            break;
+            
+            case "srl":
+            
+            break;
+            
+            case "sb":
+            
+            break;
+            
+            case "sc":
+            
+            break;
+            
+            case "sh":
+            
+            break;
+            
+            case "sw":
+            
+            break;
+            
+            case "sub":
+            
+            break;
+            
+            case "subu":
+            
+            break;
+            
+            default:
+               //print out invalid instruction message
+               System.out.println(program.get(pc).instruct);
+            break;
+               
+         }
+
+         //increment pc
+         pc++;
+      }
+
    }
 
    public void run()
@@ -157,14 +316,24 @@ public class mipsEmulator {
 
    }
 
-   public void memory()
-   {
 
+   public void memory(int num1, int num2)
+   {
+      //printing out values from datamemory[num1] to datamemory[num2]
+      for(int i = num1; i <= num2; i++){
+         System.out.printf("%d = %d", i, dataMemory[i]);
+      }
    }
 
    public void clear()
    {
 
+      //clear pc
+      pc = 0;
+      //clear memory
+      Arrays.fill(dataMemory, 0);
+      //clear registers
+      Arrays.fill(registers, 0);
    }
 
    public void quit()
