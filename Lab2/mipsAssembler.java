@@ -317,16 +317,14 @@ public class mipsAssembler {
                 //if so is it alone?
                 if (line.contains(":") && !line.contains("j") && !line.contains("$")) {
                     line = line.trim();
-                    line = line.replace(":", " ");
-                    splitLine = line.split(" ");
+                    splitLine = line.split(":");
                     instlist.add(splitLine[0]);
                 }
                 // if label and j/jal instruction are on the same line
                 // replaces colon with whitespaces and splits into list
                 else if (line.contains(":") && (line.contains("$") || (line.contains("j")))) {
                     line = line.trim();
-                    line = line.replace(":", " ");
-                    splitLine = line.split(" ");
+                    splitLine = line.split(":");
                     instlist = parseInstruction(splitLine[1],instlist);
                 }
                 // if label and any other instruction are on the same line
