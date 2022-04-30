@@ -185,9 +185,10 @@ public class mipsEmulator {
       System.out.println("pc = " + pc);
       for(int i = 0; i < 32; i++)
       {
-         System.out.printf("%s = %d\t", regReverse.get(i), registers[i]);
-         if (i%4==0)
+         if (i%4==0 && i != 0){
             System.out.println();   
+         }
+         System.out.printf("%s = %d\t", regReverse.get(i), registers[i]);
       }
    }
 
@@ -245,7 +246,7 @@ public class mipsEmulator {
 
    public void quit()
    {
-      System.out.println("Quitting Program...");
+      //System.out.println("Quitting Program...");
    }
 
    public void init_regRev(HashMap<Integer, String> regRevMap) {
@@ -524,7 +525,7 @@ public class mipsEmulator {
       
       break;
       
-      case default:
+      default:
          //print out invalid instruction message
          System.out.println(program.get(pc).instruct);
       break;
