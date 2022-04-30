@@ -182,14 +182,35 @@ public class mipsEmulator {
 
    public void dump()
    {
-      System.out.println("pc = " + pc);
+      //Dump all including $at
+      // System.out.println("\npc = " + pc);
+      // for(int i = 0; i < 32; i++)
+      // {
+      //    if (i%4==0 && i != 0){
+      //       System.out.println();   
+      //    }
+      //    System.out.printf("%s = %d\t", regReverse.get(i), registers[i]);
+      // }
+      // System.out.println();
+
+      //print all registers excluding $at
+      //purpose is to follow format of expected output from instructor
+      System.out.println("\npc = " + pc);
+      int printCount = 0;
       for(int i = 0; i < 32; i++)
       {
-         if (i%4==0 && i != 0){
+         if (printCount%4==0 && printCount != 0){
             System.out.println();   
          }
-         System.out.printf("%s = %d\t", regReverse.get(i), registers[i]);
+         if ((i!=1)&(i!=26)&(i!=27)&(i!=28)&(i!=30))
+         {
+            System.out.printf("%s = %d\t", regReverse.get(i), registers[i]);
+            printCount++;
+         }
       }
+      System.out.println();
+
+
    }
 
    public void step(int numOfSteps)
@@ -230,7 +251,12 @@ public class mipsEmulator {
    {
       //printing out values from datamemory[num1] to datamemory[num2]
       for(int i = num1; i <= num2; i++){
-         System.out.printf("M[%d] = %d\n", i, dataMemory[i]);
+         //desired output cause I like it and think it looks cool
+         //System.out.printf("M[%d] = %d\n", i, dataMemory[i]);
+         
+         //output for assignment cause diff and I want points and for
+         //me and storm to succeed and thrive
+         System.out.printf("[%d] = %d\n", i, dataMemory[i]);
       }
    }
 
@@ -242,6 +268,8 @@ public class mipsEmulator {
       Arrays.fill(dataMemory, 0);
       //clear registers
       Arrays.fill(registers, 0);
+      //print out notification
+      System.out.println("\tSimulator reset");
    }
 
    public void quit()

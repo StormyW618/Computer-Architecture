@@ -61,11 +61,11 @@ public class lab3 {
       } else {
          try {
             // no user input, read from script file
-            //Scanner file_input = new Scanner(args[1]);
-            Scanner file_input = new Scanner(new File ("Lab3/script1"));
+            Scanner file_input = new Scanner(new File (args[1]));
+            //Scanner file_input = new Scanner(new File ("Lab3/script1"));
             while (true) {
                String file = file_input.nextLine();// obtaining file input
-               System.out.println("\nmips>" + file);// printing prompt
+               System.out.println("\nmips> " + file);// printing prompt
                // checking if quit command entered
                if (file.contains("q")) {
                   // close scanner
