@@ -19,11 +19,9 @@
 package Lab3;
 
 import java.io.File;
-import java.util.NoSuchElementException;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import Lab2.mipsAssembler;
-import Lab3.mipsEmulator;
 
 public class lab3 {
 

@@ -1,13 +1,10 @@
 package Lab2;
 
-import Lab2.Instruction;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class mipsAssembler {
     
@@ -434,8 +431,11 @@ public class mipsAssembler {
             {
                 parsedInst = subLine.split("\\$", 2);
                 newParse.add(parsedInst[0].trim());
-                parsedInst[1] = "$" + parsedInst[1];
-                parsedInst = parsedInst[1].split(",");
+                if (parsedInst.length > 1)
+                {
+                    parsedInst[1] = "$" + parsedInst[1];
+                    parsedInst = parsedInst[1].split(",");
+                }
                 for (int j = 0; j < parsedInst.length; j++) {
                     newParse.add(parsedInst[j]);
                 }

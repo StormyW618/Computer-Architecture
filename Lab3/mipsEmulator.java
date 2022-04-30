@@ -31,7 +31,7 @@ public class mipsEmulator {
 
    // ---METHODS---
    // constructors
-   mipsEmulator() {
+   public mipsEmulator() {
       // initalize all members to default, zero, null
       pc = 0;
       registers = new int[32];
@@ -43,7 +43,7 @@ public class mipsEmulator {
       init_regRev(regReverse);
    }
 
-   mipsEmulator(ArrayList<Instruction> assembledProgram) {
+   public mipsEmulator(ArrayList<Instruction> assembledProgram) {
       // initalize all members to default, zero, null
       pc = 0;
       registers = new int[32];
@@ -55,7 +55,7 @@ public class mipsEmulator {
       
    }
 
-   mipsEmulator(mipsAssembler assembled) {
+   public mipsEmulator(mipsAssembler assembled) {
       // initalize all members to default, zero, null
       pc = 0;
       registers = new int[32];
@@ -536,7 +536,26 @@ public class mipsEmulator {
       case "sw":
       //store into memory at address in rs + offset the value in register rt
       //M[R[rs]+SignExtImm] = R[rt]
-      dataMemory[registers[program.get(pc).rs]+program.get(pc).immediate] = registers[program.get(pc).rt];
+
+      //V1
+      //dataMemory[registers[program.get(pc).rs]+program.get(pc).immediate] = registers[program.get(pc).rt];
+      
+      //V2
+      if((!program.isEmpty()) && (pc>-1) && (pc<=program.size()))
+      {
+         int rIndex1 = program.get(pc).rs;
+         int rIndex2 = program.get(pc).rt;
+
+         if((registers.length > 0) && ((rIndex1>-1)&&(rIndex2>-1)) && ((rIndex1<registers.length)&&(rIndex2<registers.length)) )
+         {
+            int memIndex = registers[rIndex1]+program.get(pc).immediate;
+
+            if((dataMemory.length > 0) && (memIndex>-1) && (memIndex<dataMemory.length))
+            {
+               dataMemory[memIndex] = registers[rIndex2];
+            }
+         }
+      }
       
       break;
       
