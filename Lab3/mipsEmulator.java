@@ -399,7 +399,7 @@ public class mipsEmulator {
       case "jal":
       //store return address in $ra and jump to JumpAddress
       //R[31] = pc + 4, pc = JumpAddr
-      registers[31] = pc + 4;
+      registers[31] = pc + 1;
       pc = program.get(pc).address;
 
       //set increment to false so we stay on post jump instruction
@@ -448,7 +448,7 @@ public class mipsEmulator {
       case "lw":
       //load value from memory at address in register rs + offset to register rt
       //R[rt] = M[R[rs]+SignExtImm]
-      registers[program.get(pc).rt] = dataMemory[program.get(pc).rs+program.get(pc).immediate];
+      registers[program.get(pc).rt] = dataMemory[registers[program.get(pc).rs]+program.get(pc).immediate];
       
       break;
       

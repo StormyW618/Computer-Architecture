@@ -29,7 +29,8 @@ public class lab3 {
 
    public static void main(String[] args) {
       //define mips objects
-      mipsAssembler test1Asm = new mipsAssembler(args[0]); 
+      mipsAssembler test1Asm = new mipsAssembler(args[0]);
+      //mipsAssembler test1Asm = new mipsAssembler("Lab3/test2.asm"); 
       mipsEmulator test1Em = new mipsEmulator(test1Asm);
       if (args.length == 1) {
       //if (args.length == 0) {
@@ -62,7 +63,7 @@ public class lab3 {
          try {
             // no user input, read from script file
             Scanner file_input = new Scanner(new File (args[1]));
-            //Scanner file_input = new Scanner(new File ("Lab3/script1"));
+            //Scanner file_input = new Scanner(new File ("Lab3/script2"));
             while (true) {
                String file = file_input.nextLine();// obtaining file input
                System.out.println("\nmips> " + file);// printing prompt
