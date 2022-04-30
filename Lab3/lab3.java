@@ -26,7 +26,8 @@ import Lab3.mipsEmulator;
 public class lab3 {
 
    public static void main(String[] args) {
-      if (args.length == 1) {
+      //if (args.length == 1) {
+      if (args.length == 0) {
          try {
             //define mips objects
             mipsAssembler test1Asm = new mipsAssembler("Lab3/test1.asm"); 
@@ -47,8 +48,11 @@ public class lab3 {
                   break;
                } else {
                   // pass to command function
-                  test1Em.command(user);
-                  System.out.println("program continues");
+                  if(user.length()>0)
+                  {
+                     test1Em.command(user);
+                     System.out.println("program continues");
+                  }
                }
             }
          } catch (IllegalStateException e) {

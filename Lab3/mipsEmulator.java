@@ -92,16 +92,29 @@ public class mipsEmulator {
          case 's':
             // step through the program
             // single or multiple based on input
-            if (userInput.length() > 1)
-            {
-               //get number of steps after s command
-               step(Integer.parseInt(userInput.substring(1)));
-            }
-            else
+            String[] splitInput = userInput.split(" ");
+            if(splitInput.length == 1)
             {
                //run step command for 1 iteration
                step(1);
             }
+            else if(splitInput.length == 2)
+            {
+               splitInput[1] = splitInput[1].trim();
+               try{
+                  //get number of steps after s command
+                  step(Integer.parseInt(splitInput[1]));
+               }
+               catch(NumberFormatException e){
+                  System.out.println("Second argument not a number");
+               }
+
+            }
+            else
+            {
+               System.out.println("Too many arguments, try again.");
+            }
+
             break;
 
          case 'r':
@@ -113,10 +126,26 @@ public class mipsEmulator {
             // display data memory from location num1 to num2
             //split string into list to properly parse out args num1 and num2
             String[] arr = userInput.split(" ");
-            //if(arr.length==1)
-            int num1 = Integer.parseInt(arr[1]);
-            int num2 = Integer.parseInt(arr[2]);
-            memory(num1, num2);
+            if(arr.length == 1)
+            {
+               memory(0, 0);
+            }
+            else if(arr.length == 2)
+            {
+               int num1 = Integer.parseInt(arr[1]);
+               memory(num1, num1);
+            }
+            else if(arr.length == 3)
+            {
+               int num1 = Integer.parseInt(arr[1]);
+               int num2 = Integer.parseInt(arr[2]);
+               memory(num1, num2);
+            }
+            else
+            {
+               System.out.println("Too many arguments, try again.");
+            }
+
             break;
 
          case 'c':
@@ -156,7 +185,7 @@ public class mipsEmulator {
       System.out.println("pc = " + pc);
       for(int i = 0; i < 32; i++)
       {
-         System.out.printf("%s = %i\t", regReverse.get(i), registers[i]);
+         System.out.printf("%s = %d\t", regReverse.get(i), registers[i]);
          if (i%4==0)
             System.out.println();   
       }
@@ -169,268 +198,38 @@ public class mipsEmulator {
       // of instructions process id determined by 
       // value passed into function 
 
-      //create flag for incrementing
-      boolean increment = true;  
-
-      for (int i = 0; i < numOfSteps; i++)
+      //keep track of steps executed
+      int stepsExecuted;  
+      for (stepsExecuted = 0; stepsExecuted < numOfSteps; stepsExecuted++)
       {
-         switch(program.get(pc).instruct)
+         if(pc < program.size())
          {
-            case "add":
-            //add rs and rt, store in rd
-            //R[rd] = R[rs] + R[rt]
-            registers[program.get(pc).rd] = registers[program.get(pc).rs] + registers[program.get(pc).rt]; 
-            
+            executeInst();
+         }
+         else
+         {
             break;
-            
-            case "addi":
-            //add rs and SignExtendedimmediate, store in rt
-            //R[rt] = R[rs] + SignExtImm
-            registers[program.get(pc).rt] = registers[program.get(pc).rs] + program.get(pc).immediate; 
-            
-            break;
-            
-            case "addiu":
-            //add unsigned rs and SignExtendedimmediate, store in rt
-            //R[rt] = R[rs] + SignExtImm 
-            
-            break;
-            
-            case "addu":
-            //add unsigned rs and rt, store in rd
-            //R[rd] = R[rs] + R[rt]
-            
-            break;
-            
-            case "and":
-            //bitwise and rs and rt, store in rd
-            //R[rd] = R[rs] & R[rt]
-            registers[program.get(pc).rd] = registers[program.get(pc).rs] & registers[program.get(pc).rt];
-            
-            break;
-            
-            case "andi":
-            //and rs and ZeroExtendedImm, store in rt
-            //R[rt] = R[rs] & ZeroExtImm
-            
-            break;
-            
-            case "beq":
-            //if rs == rt, pc = pc + 4 + BranchAddr
-            //if(R[rs]==R[rt]) PC=PC+4+BranchAddr
-            if (registers[program.get(pc).rs]==registers[program.get(pc).rt])
-               pc = pc + 4 + registers[program.get(pc).immediate];
-            
-            //set increment to false so we stay on branch instruction
-            increment = false;
-
-            break;
-            
-            case "bne":
-            //if rs == rt, pc = pc + 4 + BranchAddr
-            //if(R[rs]!=R[rt]) PC=PC+4+BranchAddr
-            if (registers[program.get(pc).rs] != registers[program.get(pc).rt])
-               pc = pc + 4 + registers[program.get(pc).immediate];
-
-            //set increment to false so we stay on post branch instruction
-            increment = false;
-
-            break;
-            
-            case "j":
-            //change pc to jump label address
-            //PC=JumpAddr
-            pc = program.get(pc).address;
-
-            //set increment to false so we stay on post jump instruction
-            increment = false;
-            
-            break;
-            
-            case "jal":
-            //store return address in $ra and jump to JumpAddress
-            //R[31] = pc + 4, pc = JumpAddr
-            registers[31] = pc + 4;
-            pc = program.get(pc).address;
-
-            //set increment to false so we stay on post jump instruction
-            increment = false;
-
-            break;
-            
-            case "jr":
-            //Jump to address stored in register
-            //pc = R[rs]
-            pc = registers[program.get(pc).rs];
-
-            //set increment to false so we stay on post jump instruction
-            increment = false;
-            
-            break;
-            
-            case "lbu":
-            //load unsigned byte into rt from address in rs and offset
-            //R[rt]={24’b0,M[R[rs]+SignExtImm](7:0)}
-            
-            break;
-            
-            case "lhu":
-            //load unsigned halfword into rt from address in rs and offset
-            //R[rt]={16’b0,M[R[rs]+SignExtImm](15:0)}
-            
-            break;
-            
-            case "ll":
-            //From wiki - 
-            //Load-link returns the current value of a memory location, 
-            //while a subsequent store-conditional to the same memory 
-            //location will store a new value only if no updates have occurred 
-            //to that location since the load-link. 
-            //R[rt] = M[R[rs]+SignExtImm] 
-            
-            break;
-            
-            case "lui":
-            //Load register rt with the upper 16 bits of a 32bit value
-            //R[rt] = {imm, 16’b0}
-            
-            break;
-            
-            case "lw":
-            //load value from memory at address in register rs + offset to register rt
-            //R[rt] = M[R[rs]+SignExtImm]
-            registers[program.get(pc).rt] = dataMemory[program.get(pc).rs+program.get(pc).immediate];
-            
-            break;
-            
-            case "nor":
-            //store into register rd the negated bitwise or of rs and rt 
-            //R[rd] = ~ (R[rs] | R[rt])
-            registers[program.get(pc).rd] = ~ (registers[program.get(pc).rs] | registers[program.get(pc).rt]);
-            
-            break;
-            
-            case "or":
-            //store into register rd the bitwise or of rs and rt 
-            //R[rd] = R[rs] | R[rt]
-            registers[program.get(pc).rd] = (registers[program.get(pc).rs] | registers[program.get(pc).rt]);
-            
-            break;
-            
-            case "ori":
-            //store into register rt the bitwise or of rs and and immediate 
-            //R[rt] = R[rs] | ZeroExtImm 
-            
-            break;
-            
-            case "slt":
-            //return true or false to rd for if register rs is less than register rt
-            //R[rd] = (R[rs] < R[rt]) ? 1 : 0
-            registers[program.get(pc).rd] = (registers[program.get(pc).rs] < registers[program.get(pc).rt]) ? 1 : 0;
-            
-            break;
-            
-            case "slti":
-            //return true or false to rt for if register rs is less than immediate
-            //R[rt] = (R[rs] < SignExtImm)? 1 : 0
-            
-            break;
-            
-            case "sltiu":
-            //return true or false to rt for if register rs is less than immediate
-            //R[rt] = (R[rs] < SignExtImm)? 1 : 0 
-            
-            break;
-            
-            case "sltu":
-            //return true or false to rd for if register rs is less than register rt, both as unsigned
-            // R[rd] = (R[rs] < R[rt]) ? 1 : 0 
-            
-            break;
-            
-            case "sll":
-            //store into rd the value in rt shifted to the left shamt times
-            //R[rd] = R[rt] << shamt
-            registers[program.get(pc).rd] = (registers[program.get(pc).rt] << program.get(pc).shamt);
-            break;
-            
-            case "srl":
-            //store into rd the value in rt shifted to the left shamt times
-            //the bits shifted in will be zero rather than matching sign
-            //R[rd] = R[rt] >>> shamt
-            registers[program.get(pc).rd] = (registers[program.get(pc).rt] >>> program.get(pc).shamt);
-
-            break;
-            
-            case "sb":
-            //store into memory at address in rs + offset the first byte in register rt
-            //M[R[rs]+SignExtImm](7:0) = R[rt](7:0)
-            
-            break;
-            
-            case "sc":
-            //From wiki - 
-            //Load-link returns the current value of a memory location, 
-            //while a subsequent store-conditional to the same memory 
-            //location will store a new value only if no updates have occurred 
-            //to that location since the load-link. 
-            //M[R[rs]+SignExtImm] = R[rt]; R[rt] = (atomic) ? 1 : 0
-            
-            break;
-            
-            case "sh":
-            //store into memory at address in rs + offset the first halfword in register rt
-            //M[R[rs]+SignExtImm](15:0) = R[rt](15:0)
-            
-            break;
-            
-            case "sw":
-            //store into memory at address in rs + offset the value in register rt
-            //M[R[rs]+SignExtImm] = R[rt]
-            dataMemory[program.get(pc).rs+program.get(pc).immediate] = registers[program.get(pc).rt];
-            
-            break;
-            
-            case "sub":
-            //store into register rd the result of subtraction between register rs and rt
-            //R[rd] = R[rs] - R[rt] 
-            registers[program.get(pc).rd] = (registers[program.get(pc).rs] - registers[program.get(pc).rt]);
-
-            break;
-            
-            case "subu":
-            //store into register rd the result of subtraction between register rs and rt, both unsigned
-            //R[rd] = R[rs] - R[rt]
-            
-            break;
-            
-            case default:
-               //print out invalid instruction message
-               System.out.println(program.get(pc).instruct);
-            break;
-               
          }
 
-         //increment pc 
-         if (increment)
-            pc++;
-         
-         //reset increment to true in case it was set to false
-         increment = true;
       }
+
+      System.out.printf("\t%d instruction(s) executed\n",stepsExecuted);
 
    }
 
    public void run()
    {
-      step(program.size()-pc);
+      while(pc < program.size())
+      {
+         executeInst();
+      }
    }
 
    public void memory(int num1, int num2)
    {
       //printing out values from datamemory[num1] to datamemory[num2]
       for(int i = num1; i <= num2; i++){
-         System.out.printf("%d = %d", i, dataMemory[i]);
+         System.out.printf("M[%d] = %d\n", i, dataMemory[i]);
       }
    }
 
@@ -484,6 +283,258 @@ public class mipsEmulator {
       regRevMap.put(29,"$sp");
       regRevMap.put(30,"$fp");
       regRevMap.put(31,"$ra");
+  }
+
+  public void executeInst()
+  {
+   //create flag for incrementing
+   boolean increment = true;
+
+   switch(program.get(pc).instruct)
+   {
+      case "add":
+      //add rs and rt, store in rd
+      //R[rd] = R[rs] + R[rt]
+      registers[program.get(pc).rd] = registers[program.get(pc).rs] + registers[program.get(pc).rt]; 
+      
+      break;
+      
+      case "addi":
+      //add rs and SignExtendedimmediate, store in rt
+      //R[rt] = R[rs] + SignExtImm
+      registers[program.get(pc).rt] = registers[program.get(pc).rs] + program.get(pc).immediate; 
+      
+      break;
+      
+      case "addiu":
+      //add unsigned rs and SignExtendedimmediate, store in rt
+      //R[rt] = R[rs] + SignExtImm 
+      
+      break;
+      
+      case "addu":
+      //add unsigned rs and rt, store in rd
+      //R[rd] = R[rs] + R[rt]
+      
+      break;
+      
+      case "and":
+      //bitwise and rs and rt, store in rd
+      //R[rd] = R[rs] & R[rt]
+      registers[program.get(pc).rd] = registers[program.get(pc).rs] & registers[program.get(pc).rt];
+      
+      break;
+      
+      case "andi":
+      //and rs and ZeroExtendedImm, store in rt
+      //R[rt] = R[rs] & ZeroExtImm
+      
+      break;
+      
+      case "beq":
+      //if rs == rt, pc = pc + 4 + BranchAddr
+      //if(R[rs]==R[rt]) PC=PC+4+BranchAddr
+      if (registers[program.get(pc).rs]==registers[program.get(pc).rt])
+      {
+         pc = pc + 1 + program.get(pc).immediate;
+      
+         //set increment to false so we stay on branch instruction
+         increment = false;
+      }
+
+      break;
+      
+      case "bne":
+      //if rs == rt, pc = pc + 4 + BranchAddr
+      //if(R[rs]!=R[rt]) PC=PC+4+BranchAddr
+      if (registers[program.get(pc).rs] != registers[program.get(pc).rt])
+      {
+         pc = pc + 1 + program.get(pc).immediate;
+
+         //set increment to false so we stay on post branch instruction
+         increment = false;
+      }
+
+      break;
+      
+      case "j":
+      //change pc to jump label address
+      //PC=JumpAddr
+      pc = program.get(pc).address;
+
+      //set increment to false so we stay on post jump instruction
+      increment = false;
+      
+      break;
+      
+      case "jal":
+      //store return address in $ra and jump to JumpAddress
+      //R[31] = pc + 4, pc = JumpAddr
+      registers[31] = pc + 4;
+      pc = program.get(pc).address;
+
+      //set increment to false so we stay on post jump instruction
+      increment = false;
+
+      break;
+      
+      case "jr":
+      //Jump to address stored in register
+      //pc = R[rs]
+      pc = registers[program.get(pc).rs];
+
+      //set increment to false so we stay on post jump instruction
+      increment = false;
+      
+      break;
+      
+      case "lbu":
+      //load unsigned byte into rt from address in rs and offset
+      //R[rt]={24’b0,M[R[rs]+SignExtImm](7:0)}
+      
+      break;
+      
+      case "lhu":
+      //load unsigned halfword into rt from address in rs and offset
+      //R[rt]={16’b0,M[R[rs]+SignExtImm](15:0)}
+      
+      break;
+      
+      case "ll":
+      //From wiki - 
+      //Load-link returns the current value of a memory location, 
+      //while a subsequent store-conditional to the same memory 
+      //location will store a new value only if no updates have occurred 
+      //to that location since the load-link. 
+      //R[rt] = M[R[rs]+SignExtImm] 
+      
+      break;
+      
+      case "lui":
+      //Load register rt with the upper 16 bits of a 32bit value
+      //R[rt] = {imm, 16’b0}
+      
+      break;
+      
+      case "lw":
+      //load value from memory at address in register rs + offset to register rt
+      //R[rt] = M[R[rs]+SignExtImm]
+      registers[program.get(pc).rt] = dataMemory[program.get(pc).rs+program.get(pc).immediate];
+      
+      break;
+      
+      case "nor":
+      //store into register rd the negated bitwise or of rs and rt 
+      //R[rd] = ~ (R[rs] | R[rt])
+      registers[program.get(pc).rd] = ~ (registers[program.get(pc).rs] | registers[program.get(pc).rt]);
+      
+      break;
+      
+      case "or":
+      //store into register rd the bitwise or of rs and rt 
+      //R[rd] = R[rs] | R[rt]
+      registers[program.get(pc).rd] = (registers[program.get(pc).rs] | registers[program.get(pc).rt]);
+      
+      break;
+      
+      case "ori":
+      //store into register rt the bitwise or of rs and and immediate 
+      //R[rt] = R[rs] | ZeroExtImm 
+      
+      break;
+      
+      case "slt":
+      //return true or false to rd for if register rs is less than register rt
+      //R[rd] = (R[rs] < R[rt]) ? 1 : 0
+      registers[program.get(pc).rd] = (registers[program.get(pc).rs] < registers[program.get(pc).rt]) ? 1 : 0;
+      
+      break;
+      
+      case "slti":
+      //return true or false to rt for if register rs is less than immediate
+      //R[rt] = (R[rs] < SignExtImm)? 1 : 0
+      
+      break;
+      
+      case "sltiu":
+      //return true or false to rt for if register rs is less than immediate
+      //R[rt] = (R[rs] < SignExtImm)? 1 : 0 
+      
+      break;
+      
+      case "sltu":
+      //return true or false to rd for if register rs is less than register rt, both as unsigned
+      // R[rd] = (R[rs] < R[rt]) ? 1 : 0 
+      
+      break;
+      
+      case "sll":
+      //store into rd the value in rt shifted to the left shamt times
+      //R[rd] = R[rt] << shamt
+      registers[program.get(pc).rd] = (registers[program.get(pc).rt] << program.get(pc).shamt);
+      break;
+      
+      case "srl":
+      //store into rd the value in rt shifted to the left shamt times
+      //the bits shifted in will be zero rather than matching sign
+      //R[rd] = R[rt] >>> shamt
+      registers[program.get(pc).rd] = (registers[program.get(pc).rt] >>> program.get(pc).shamt);
+
+      break;
+      
+      case "sb":
+      //store into memory at address in rs + offset the first byte in register rt
+      //M[R[rs]+SignExtImm](7:0) = R[rt](7:0)
+      
+      break;
+      
+      case "sc":
+      //From wiki - 
+      //Load-link returns the current value of a memory location, 
+      //while a subsequent store-conditional to the same memory 
+      //location will store a new value only if no updates have occurred 
+      //to that location since the load-link. 
+      //M[R[rs]+SignExtImm] = R[rt]; R[rt] = (atomic) ? 1 : 0
+      
+      break;
+      
+      case "sh":
+      //store into memory at address in rs + offset the first halfword in register rt
+      //M[R[rs]+SignExtImm](15:0) = R[rt](15:0)
+      
+      break;
+      
+      case "sw":
+      //store into memory at address in rs + offset the value in register rt
+      //M[R[rs]+SignExtImm] = R[rt]
+      dataMemory[registers[program.get(pc).rs]+program.get(pc).immediate] = registers[program.get(pc).rt];
+      
+      break;
+      
+      case "sub":
+      //store into register rd the result of subtraction between register rs and rt
+      //R[rd] = R[rs] - R[rt] 
+      registers[program.get(pc).rd] = (registers[program.get(pc).rs] - registers[program.get(pc).rt]);
+
+      break;
+      
+      case "subu":
+      //store into register rd the result of subtraction between register rs and rt, both unsigned
+      //R[rd] = R[rs] - R[rt]
+      
+      break;
+      
+      case default:
+         //print out invalid instruction message
+         System.out.println(program.get(pc).instruct);
+      break;
+         
+   }
+
+   //increment pc 
+   if (increment)
+   pc++;
+
   }
 
 }
