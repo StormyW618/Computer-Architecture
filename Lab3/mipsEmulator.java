@@ -143,9 +143,9 @@ public class mipsEmulator {
    {
 
       System.out.println("pc = " + pc);
-      // for(int i = 0; i < 32; i++){
-         
-      // }
+      for(int i = 0; i < 32; i++){
+         System.out.println("Register = " + registers[i]);   
+      }
    }
 
    public void step(int numOfSteps)
