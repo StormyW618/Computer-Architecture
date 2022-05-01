@@ -18,20 +18,21 @@
 
 package Lab3;
 
-import java.util.NoSuchElementException;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 import Lab2.mipsAssembler;
-import Lab3.mipsEmulator;
 
 public class lab3 {
 
    public static void main(String[] args) {
+      //define mips objects
+      mipsAssembler test1Asm = new mipsAssembler(args[0]);
+      //mipsAssembler test1Asm = new mipsAssembler("Lab3/test2.asm"); 
+      mipsEmulator test1Em = new mipsEmulator(test1Asm);
       if (args.length == 1) {
+      //if (args.length == 0) {
          try {
-            //define mips objects
-            mipsAssembler test1Asm = new mipsAssembler("Lab3/test1.asm"); 
-            mipsEmulator test1Em = new mipsEmulator(test1Asm);
-            
             // scanner to access user input from console
             Scanner user_input = new Scanner(System.in);
             while (true) {
@@ -48,40 +49,38 @@ public class lab3 {
                } else {
                   System.out.println("program continues");
                   // pass to command function
-                  test1Em.command(user);
-                  // break from while loop
-                  break;
-                } //else {
-               //    // pass to command function
-               //    test1Em.command(user);
-               //    System.out.println("program continues");
-               // }
+                  if(user.length()>0)
+                  {
+                     test1Em.command(user);
+                  }
+               }
             }
          } catch (IllegalStateException e) {
             System.out.println("Scanner was closed");
          }
       } else {
-         System.out.println("ASM & Script");
          try {
             // no user input, read from script file
-            Scanner file_input = new Scanner(args[2]);
+            Scanner file_input = new Scanner(new File (args[1]));
+            //Scanner file_input = new Scanner(new File ("Lab3/script2"));
             while (true) {
                String file = file_input.nextLine();// obtaining file input
-               System.out.print("mips>" + file);// printing prompt
+               System.out.println("\nmips> " + file);// printing prompt
                // checking if quit command entered
                if (file.contains("q")) {
                   // close scanner
                   file_input.close();
                   // pass to command function takes string input
-
+                  test1Em.command(file);
                   // break from while loop
                   break;
                } else {
-                  System.out.println("program continues");
+                  //System.out.println("program continues");
                   // pass to command function
+                  test1Em.command(file);
                }
             }
-         } catch (IllegalStateException e) {
+         } catch (IllegalStateException | FileNotFoundException e) {
             System.out.println("Scanner was closed");
          }
       }

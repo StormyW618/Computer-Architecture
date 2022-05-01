@@ -13,9 +13,7 @@
  *              converts it into binary.
  */
 
- package Lab2;
-
- import Lab2.mipsAssembler;
+package Lab2;
 
 public class lab2 {
 

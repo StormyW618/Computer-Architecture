@@ -1,13 +1,10 @@
 package Lab2;
 
-import Lab2.Instruction;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class mipsAssembler {
     
@@ -23,11 +20,11 @@ public class mipsAssembler {
         public static File asmFile; //assembly file
 
         //look up tables
-        public static HashMap<String, String>  type = new HashMap<>(); 
-        public static HashMap<String, Integer> opcode = new HashMap<>();
-        public static HashMap<String, Integer> func = new HashMap<>();
-        public static HashMap<String, Integer> reg = new HashMap<>();
-        public static HashMap<String, Integer> lineLabel = new HashMap<>();
+        public static HashMap<String, String>  type; 
+        public static HashMap<String, Integer> opcode;
+        public static HashMap<String, Integer> func;
+        public static HashMap<String, Integer> reg;
+        public static HashMap<String, Integer> lineLabel;
 
         //data
         public static ArrayList<String> lines; //holds file instruction lines as strings
@@ -322,8 +319,8 @@ public class mipsAssembler {
                     splitLine = line.split(":");
                     instlist.add(splitLine[0]);
                 }
-                // if label and j/jal instruction are on the same line
-                // replaces colon with whitespaces and splits into list
+                // if label and an instruction are on the same line
+                // split label from instruction and then parse
                 else if (line.contains(":") && (line.contains("$") || (line.contains("j")))) {
                     line = line.trim();
                     line = line.replace(":", " ");
@@ -331,7 +328,7 @@ public class mipsAssembler {
                     splitLine = line.split(":");
                     instlist = parseInstruction(splitLine[1],instlist);
                 }
-                // if label and any other instruction are on the same line
+                // line just has an instruction
                 else if (!line.contains(":")) {
                     instlist = parseInstruction(line,instlist);
                 }
@@ -437,9 +434,12 @@ public class mipsAssembler {
             else
             {
                 parsedInst = subLine.split("\\$", 2);
-                newParse.add(parsedInst[0]);
-                parsedInst[1] = "$" + parsedInst[1];
-                parsedInst = parsedInst[1].split(",");
+                newParse.add(parsedInst[0].trim());
+                if (parsedInst.length > 1)
+                {
+                    parsedInst[1] = "$" + parsedInst[1];
+                    parsedInst = parsedInst[1].split(",");
+                }
                 for (int j = 0; j < parsedInst.length; j++) {
                     newParse.add(parsedInst[j]);
                 }

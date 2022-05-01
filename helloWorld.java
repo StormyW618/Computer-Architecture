@@ -9,11 +9,11 @@ public class helloWorld {
  
     public static void main(String []args) {
        System.out.println("Hello World"); // prints Hello World
+       HashMap<Integer,String> test = new HashMap<>();
 
+       test.put(0,"hello");
 
-       String test = "hello";
-
-       System.out.println(test.length());
+       System.out.println(test.get(0));
     }
 
  }
