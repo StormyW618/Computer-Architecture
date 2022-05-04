@@ -579,6 +579,9 @@ public class mipsEmulator {
          
    }
 
+   //ensure register $0 = 0
+   registers[0] = 0;
+
    //increment pc 
    if (increment)
    pc++;
