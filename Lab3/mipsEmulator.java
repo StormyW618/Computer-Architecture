@@ -23,11 +23,11 @@ public class mipsEmulator {
     ****************************************************/
 
    // ---MEMBERS---
-   int pc; // Program counter
-   int[] registers; // register file
-   int[] dataMemory; // memory to store and read data
-   ArrayList<Instruction> program; //list of instructions
-   HashMap<Integer, String> regReverse;
+   public int pc; // Program counter
+   public int[] registers; // register file
+   public int[] dataMemory; // memory to store and read data
+   public ArrayList<Instruction> program; //list of instructions
+   public HashMap<Integer, String> regReverse;
 
    // ---METHODS---
    // constructors
