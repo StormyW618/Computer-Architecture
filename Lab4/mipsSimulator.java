@@ -48,6 +48,7 @@ public class mipsSimulator extends mipsEmulator {
       //add files for testing and output and stuff
       //flesh out class
       //fill out main (should be just about copy and paste)
+      //fill out description in main
 
 
    }
