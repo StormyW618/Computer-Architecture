@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Queue;
 import Lab3.mipsEmulator;
 
-      //todo
-      //flesh out class
+//todo
+//flesh out class
 
 public class mipsSimulator extends mipsEmulator {
    /****************************************************
@@ -27,35 +27,35 @@ public class mipsSimulator extends mipsEmulator {
     ****************************************************/
 
    // ---MEMBERS---
-   public int clock; //int to hold clock count for processor
-   public String [] stages; //holds names of stages 
-   public Queue<String> pipeline; //queue to hold instructions going through pipeline
+   public int clock; // int to hold clock count for processor
+   public int instruction; // int to hold instruction count for processor
+   public ArrayList<String> stages; // holds names of stages
+   public Queue<String> pipeline; // queue to hold instructions going through pipeline
 
-    
    // ---METHODS---
    // constructors
-   public mipsSimulator()
-   {
-      //run previous constructor
+   public mipsSimulator() {
+      // run previous constructor
       super();
 
-      //initialize members
-      //queue is an interface, initialize with linked list or something
+      // initialize members
+      // queue is an interface, initialize with linked list or something
       pipeline = new LinkedList<>();
+      stages = new ArrayList<>();
       clock = 0;
       initStages();
       initQueue();
 
    }
 
-   public mipsSimulator(ArrayList<Instruction> assembledProgram)
-   {
-      //run previous constructor
+   public mipsSimulator(ArrayList<Instruction> assembledProgram) {
+      // run previous constructor
       super(assembledProgram);
 
-      //initialize members
-      //queue is an interface, initialize with linked list or something
+      // initialize members
+      // queue is an interface, initialize with linked list or something
       pipeline = new LinkedList<>();
+      stages = new ArrayList<>();
       clock = 0;
 
       initStages();
@@ -63,14 +63,14 @@ public class mipsSimulator extends mipsEmulator {
 
    }
 
-   public mipsSimulator(mipsAssembler assembled)
-   {
-      //run previous constructor
+   public mipsSimulator(mipsAssembler assembled) {
+      // run previous constructor
       super(assembled);
 
-      //initialize members
-      //queue is an interface, initialize with linked list or something
+      // initialize members
+      // queue is an interface, initialize with linked list or something
       pipeline = new LinkedList<>();
+      stages = new ArrayList<>();
       clock = 0;
 
       initStages();
@@ -78,8 +78,8 @@ public class mipsSimulator extends mipsEmulator {
 
    }
 
-   //stall function? - to insert a stall in the queue?
-   //stall Detect? to determine when to stall?
+   // stall function? - to insert a stall in the queue?
+   // stall Detect? to determine when to stall?
 
    // user commands
    @Override
@@ -109,25 +109,19 @@ public class mipsSimulator extends mipsEmulator {
             // step through the program
             // single or multiple based on input
             String[] splitInput = userInput.split(" ");
-            if(splitInput.length == 1)
-            {
-               //run step command for 1 iteration
+            if (splitInput.length == 1) {
+               // run step command for 1 iteration
                step(1);
-            }
-            else if(splitInput.length == 2)
-            {
+            } else if (splitInput.length == 2) {
                splitInput[1] = splitInput[1].trim();
-               try{
-                  //get number of steps after s command
+               try {
+                  // get number of steps after s command
                   step(Integer.parseInt(splitInput[1]));
-               }
-               catch(NumberFormatException e){
+               } catch (NumberFormatException e) {
                   System.out.println("Second argument not a number");
                }
 
-            }
-            else
-            {
+            } else {
                System.out.println("Too many arguments, try again.");
             }
 
@@ -140,25 +134,18 @@ public class mipsSimulator extends mipsEmulator {
 
          case 'm':
             // display data memory from location num1 to num2
-            //split string into list to properly parse out args num1 and num2
+            // split string into list to properly parse out args num1 and num2
             String[] arr = userInput.split(" ");
-            if(arr.length == 1)
-            {
+            if (arr.length == 1) {
                memory(0, 0);
-            }
-            else if(arr.length == 2)
-            {
+            } else if (arr.length == 2) {
                int num1 = Integer.parseInt(arr[1]);
                memory(num1, num1);
-            }
-            else if(arr.length == 3)
-            {
+            } else if (arr.length == 3) {
                int num1 = Integer.parseInt(arr[1]);
                int num2 = Integer.parseInt(arr[2]);
                memory(num1, num2);
-            }
-            else
-            {
+            } else {
                System.out.println("Too many arguments, try again.");
             }
 
@@ -185,8 +172,7 @@ public class mipsSimulator extends mipsEmulator {
    }
 
    @Override
-   public void help()
-   {
+   public void help() {
       System.out.println("h = show help");
       System.out.println("d = dump register state");
       System.out.println("s = step through a single clock cycle (i.e. simulate 1 cycle and stop)");
@@ -197,99 +183,102 @@ public class mipsSimulator extends mipsEmulator {
       System.out.println("q = exit the program");
    }
 
-   public void showPipeline()
-   {
+   // format spacing better, this works tho
+   public void showPipeline() {
       Object[] temp = pipeline.toArray();
 
       System.out.printf("pc\t\t%s/%s\t%s/%s\t%s/%s\t%s/%s\n",
-                        stages[0],stages[1],
-                        stages[1],stages[2],
-                        stages[2],stages[3],
-                        stages[3],stages[4]);
-      
+            stages.get(0), stages.get(1),
+            stages.get(1), stages.get(2),
+            stages.get(2), stages.get(3),
+            stages.get(3), stages.get(4));
+
       System.out.printf("%d\t\t%s\t%s\t%s\t%s\n",
-                        pc,
-                        temp[0],
-                        temp[1],
-                        temp[3],
-                        temp[4]);
+            pc,
+            temp[0],
+            temp[1],
+            temp[2],
+            temp[3]);
    }
 
    @Override
-   public void step(int numOfSteps)
-   {
+   public void step(int numOfSteps) {
       // uses program array list and executes
       // a specified number of instructions. Number
-      // of instructions process id determined by 
-      // value passed into function 
+      // of instructions process id determined by
+      // value passed into function
 
-      //keep track of steps executed
-      int stepsExecuted;  
-      for (stepsExecuted = 0; stepsExecuted < numOfSteps; stepsExecuted++)
-      {
-         if(pc < program.size())
-         {
+      // keep track of steps executed
+      int stepsExecuted;
+      for (stepsExecuted = 0; stepsExecuted < numOfSteps; stepsExecuted++) {
+         if (pc < program.size()) {
             executeInst();
-         }
-         else
-         {
+         } else {
             break;
          }
 
-      }
+         // pipeline.add("l");
 
-      System.out.printf("\t%d instruction(s) executed\n",stepsExecuted);
+      }
+      // increment instructions cycles
+      instruction += 1;
+      // increment number of cycles
+      // must account for delays
+
+      // if not delay
+      // clock += 1;
+      // else
+      // conditional: clock += 3;
+      // use after load: clock += 1;
+      // jump: clock +=1;
+
+      System.out.printf("\t%d instruction(s) executed\n", stepsExecuted);
 
    }
 
    @Override
-   public void run()
-   {
-      while(pc < program.size())
-      {
+   public void run() {
+      while (pc < program.size()) {
          executeInst();
       }
    }
 
    @Override
-   public void clear()
-   {
-      //clear pc
+   public void clear() {
+      // clear pc
       pc = 0;
-      //clear memory
+      // clear memory
       Arrays.fill(dataMemory, 0);
-      //clear registers
+      // clear registers
       Arrays.fill(registers, 0);
-      //clear pipeline
+      // clear pipeline
       pipeline.clear();
       pipeline.add("empty");
       pipeline.add("empty");
       pipeline.add("empty");
       pipeline.add("empty");
-      //print out notification
+      // print out notification
       System.out.println("\tSimulator reset");
    }
 
-   public void initStages()
-   {
-      //fill in names of stages
-      stages[0] = "IF";
-      stages[1] = "ID";
-      stages[2] = "EXE";
-      stages[3] = "MEM";
-      stages[4] = "WB";
+   public void initStages() {
+      // fill in names of stages
+      stages.add("IF");
+      stages.add("ID");
+      stages.add("EXE");
+      stages.add("MEM");
+      stages.add("WB");
 
    }
 
-   public void initQueue()
-   {
-      //remove anything in the pipeline
-      while(pipeline.size()>0)
+   public void initQueue() {
+      // remove anything in the pipeline
+      while (pipeline.size() > 0)
          pipeline.remove();
 
-      //fill in pipeline with strings
-      for (int i = 0; i < stages.length-1; i++)
-      pipeline.add("empty");
+      // fill in pipeline with strings
+      for (int i = 0; i < stages.size() - 1; i++)
+         pipeline.add("empty");
 
    }
 
