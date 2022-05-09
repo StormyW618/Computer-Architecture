@@ -227,15 +227,26 @@ public class mipsSimulator extends mipsEmulator {
 
       for (int i = 0; i < numOfSteps; i++) {
          //only step through pipeline if pc is not at end of program
-         //and instructions are still in pipeline
-         if (pc < program.size() & !piplineEmpty()) 
+         //or instructions are still in pipeline
+         if (pc < program.size() | !piplineEmpty()) 
          {
             //if instructions left feed into pipeline
             //if not feed in emptys
-            //functions? enqueue/dequeue? shift?
+            if(pc < program.size())
+            {
+               shiftPipeline(program.get(pc).instruct);
+            }
+            else
+            {
+               shiftPipeline("empty");
+            }
 
             //check incoming instruction feeding into pipeline
             //decide if to execute or simulate?
+            //maybe change execute to delay? and in this loop decide weather to
+            //execution of instructions like regular or to simulate a delay.
+            //functions that return to boolean if we do delay portion of code or not.
+            //functions that help decide when to turn boolean back?
 
             //if execute run like normal
 
@@ -313,5 +324,13 @@ public class mipsSimulator extends mipsEmulator {
           empty = true;
 
       return empty;
+   }
+
+   public void shiftPipeline(String input)
+   {
+      pipeline.set(3, pipeline.get(2));
+      pipeline.set(2, pipeline.get(1));
+      pipeline.set(1, pipeline.get(0));
+      pipeline.set(0, input);
    }
 }
