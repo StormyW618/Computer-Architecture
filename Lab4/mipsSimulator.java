@@ -10,14 +10,15 @@
 package Lab4;
 
 import java.util.Arrays;
-
-// import Lab2.Instruction;
-// import Lab2.mipsAssembler;
-// import java.util.ArrayList;
-// import java.util.Arrays;
-// import java.util.HashMap;
+import java.util.LinkedList;
+import Lab2.Instruction;
+import Lab2.mipsAssembler;
+import java.util.ArrayList;
 import java.util.Queue;
 import Lab3.mipsEmulator;
+
+      //todo
+      //flesh out class
 
 public class mipsSimulator extends mipsEmulator {
    /****************************************************
@@ -26,11 +27,9 @@ public class mipsSimulator extends mipsEmulator {
     ****************************************************/
 
    // ---MEMBERS---
-   //memebers
-   //clock count 
-   //instructions - size of program from emulator
-   //queue to hold instructions going through pipeline
-   public Queue<String> pipeline; 
+   public int clock; //int to hold clock count for processor
+   public String [] stages; //holds names of stages 
+   public Queue<String> pipeline; //queue to hold instructions going through pipeline
 
     
    // ---METHODS---
@@ -38,20 +37,47 @@ public class mipsSimulator extends mipsEmulator {
    public mipsSimulator()
    {
       //run previous constructor
-      //mipsEmulator();
+      super();
 
       //initialize members
       //queue is an interface, initialize with linked list or something
-      //pipeline = new Queue<>();
-
-      //todo
-      //add files for testing and output and stuff
-      //flesh out class
-      //fill out main (should be just about copy and paste)
-      //fill out description in main
-
+      pipeline = new LinkedList<>();
+      clock = 0;
+      initStages();
+      initQueue();
 
    }
+
+   public mipsSimulator(ArrayList<Instruction> assembledProgram)
+   {
+      //run previous constructor
+      super(assembledProgram);
+
+      //initialize members
+      //queue is an interface, initialize with linked list or something
+      pipeline = new LinkedList<>();
+      clock = 0;
+
+      initStages();
+      initQueue();
+
+   }
+
+   public mipsSimulator(mipsAssembler assembled)
+   {
+      //run previous constructor
+      super(assembled);
+
+      //initialize members
+      //queue is an interface, initialize with linked list or something
+      pipeline = new LinkedList<>();
+      clock = 0;
+
+      initStages();
+      initQueue();
+
+   }
+
    //stall function? - to insert a stall in the queue?
    //stall Detect? to determine when to stall?
 
@@ -173,10 +199,23 @@ public class mipsSimulator extends mipsEmulator {
 
    public void showPipeline()
    {
+      Object[] temp = pipeline.toArray();
+
+      System.out.printf("pc\t\t%s/%s\t%s/%s\t%s/%s\t%s/%s\n",
+                        stages[0],stages[1],
+                        stages[1],stages[2],
+                        stages[2],stages[3],
+                        stages[3],stages[4]);
       
+      System.out.printf("%d\t\t%s\t%s\t%s\t%s\n",
+                        pc,
+                        temp[0],
+                        temp[1],
+                        temp[3],
+                        temp[4]);
    }
 
-   //@Override ?
+   @Override
    public void step(int numOfSteps)
    {
       // uses program array list and executes
@@ -214,21 +253,44 @@ public class mipsSimulator extends mipsEmulator {
 
    @Override
    public void clear()
- {
-    //clear pc
-    pc = 0;
-    //clear memory
-    Arrays.fill(dataMemory, 0);
-    //clear registers
-    Arrays.fill(registers, 0);
-    //clear pipeline
-    pipeline.clear();
-    pipeline.add("empty");
-    pipeline.add("empty");
-    pipeline.add("empty");
-    pipeline.add("empty");
-    //print out notification
-    System.out.println("\tSimulator reset");
- }
+   {
+      //clear pc
+      pc = 0;
+      //clear memory
+      Arrays.fill(dataMemory, 0);
+      //clear registers
+      Arrays.fill(registers, 0);
+      //clear pipeline
+      pipeline.clear();
+      pipeline.add("empty");
+      pipeline.add("empty");
+      pipeline.add("empty");
+      pipeline.add("empty");
+      //print out notification
+      System.out.println("\tSimulator reset");
+   }
+
+   public void initStages()
+   {
+      //fill in names of stages
+      stages[0] = "IF";
+      stages[1] = "ID";
+      stages[2] = "EXE";
+      stages[3] = "MEM";
+      stages[4] = "WB";
+
+   }
+
+   public void initQueue()
+   {
+      //remove anything in the pipeline
+      while(pipeline.size()>0)
+         pipeline.remove();
+
+      //fill in pipeline with strings
+      for (int i = 0; i < stages.length-1; i++)
+      pipeline.add("empty");
+
+   }
 
 }
