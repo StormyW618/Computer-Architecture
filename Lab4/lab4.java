@@ -94,6 +94,9 @@ public class lab4 {
             mipsSimulator testSim = new mipsSimulator(testAsm);
 
             testSim.showPipeline();
+            testSim.command("s");
+            testSim.command("s");
+            testSim.command("s");
      }
 
 }

@@ -10,11 +10,9 @@
 package Lab4;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import Lab2.Instruction;
 import Lab2.mipsAssembler;
 import java.util.ArrayList;
-import java.util.Queue;
 import Lab3.mipsEmulator;
 
 //todo
@@ -29,8 +27,8 @@ public class mipsSimulator extends mipsEmulator {
    // ---MEMBERS---
    public int clock; // int to hold clock count for processor
    public int instruction; // int to hold instruction count for processor
-   public ArrayList<String> stages; // holds names of stages
-   public Queue<String> pipeline; // queue to hold instructions going through pipeline
+   public boolean execute; // flag to determine if to execute an instruction
+   public ArrayList<String> pipeline; // queue to hold instructions going through pipeline
 
    // ---METHODS---
    // constructors
@@ -40,11 +38,12 @@ public class mipsSimulator extends mipsEmulator {
 
       // initialize members
       // queue is an interface, initialize with linked list or something
-      pipeline = new LinkedList<>();
-      stages = new ArrayList<>();
+      pipeline = new ArrayList<>();
       clock = 0;
-      initStages();
-      initQueue();
+      instruction = 0;
+      execute = true;
+
+      initPipeline();
 
    }
 
@@ -54,13 +53,12 @@ public class mipsSimulator extends mipsEmulator {
 
       // initialize members
       // queue is an interface, initialize with linked list or something
-      pipeline = new LinkedList<>();
-      stages = new ArrayList<>();
+      pipeline = new ArrayList<>();
       clock = 0;
+      instruction = 0;
+      execute = true;
 
-      initStages();
-      initQueue();
-
+      initPipeline();
    }
 
    public mipsSimulator(mipsAssembler assembled) {
@@ -69,12 +67,12 @@ public class mipsSimulator extends mipsEmulator {
 
       // initialize members
       // queue is an interface, initialize with linked list or something
-      pipeline = new LinkedList<>();
-      stages = new ArrayList<>();
+      pipeline = new ArrayList<>();
       clock = 0;
+      instruction = 0;
+      execute = true;
 
-      initStages();
-      initQueue();
+      initPipeline();
 
    }
 
@@ -104,6 +102,11 @@ public class mipsSimulator extends mipsEmulator {
             // dump register state
             dump();
             break;
+
+         case 'p':
+         // show pipeline register 
+         showPipeline();
+         break;
 
          case 's':
             // step through the program
@@ -175,6 +178,7 @@ public class mipsSimulator extends mipsEmulator {
    public void help() {
       System.out.println("h = show help");
       System.out.println("d = dump register state");
+      System.out.println("p = show pipeline registers");
       System.out.println("s = step through a single clock cycle (i.e. simulate 1 cycle and stop)");
       System.out.println("s num = step through num clock cycles");
       System.out.println("r = run until the program ends and display timing summary");
@@ -183,45 +187,34 @@ public class mipsSimulator extends mipsEmulator {
       System.out.println("q = exit the program");
    }
 
-   // format spacing better, this works tho
    public void showPipeline() {
-      Object[] temp = pipeline.toArray();
 
-      System.out.printf("pc\t\t%s/%s\t%s/%s\t%s/%s\t%s/%s\n",
-            stages.get(0), stages.get(1),
-            stages.get(1), stages.get(2),
-            stages.get(2), stages.get(3),
-            stages.get(3), stages.get(4));
+      //System.out.println("pc    IF/ID    ID/EXE    EXE/MEM    MEM/WB");
+      System.out.printf("%3s    %-7s  %-7s  %-7s  %-7s\n",
+                        "pc",
+                        "if/id",
+                        "id/exe",
+                        "exe/mem",
+                        "mem/wb");
 
-      System.out.printf("%d\t\t%s\t%s\t%s\t%s\n",
+      System.out.printf("%3s    %-7s  %-7s  %-7s  %-7s\n",
             pc,
-            temp[0],
-            temp[1],
-            temp[2],
-            temp[3]);
+            pipeline.get(0),
+            pipeline.get(1),
+            pipeline.get(2),
+            pipeline.get(3));
    }
 
    @Override
    public void step(int numOfSteps) {
-      // uses program array list and executes
-      // a specified number of instructions. Number
-      // of instructions process id determined by
-      // value passed into function
+      // uses pipeline array list to simulate
+      // instructions steping through the pipeline.
+      // each step through the pipeline is a clock cycle.
+      // delays are added as needed per instruction.
+      // instructions are retrieved and executed 
+      // from program array list and executeInst method
+      // in mipsEmulator.
 
-      // keep track of steps executed
-      int stepsExecuted;
-      for (stepsExecuted = 0; stepsExecuted < numOfSteps; stepsExecuted++) {
-         if (pc < program.size()) {
-            executeInst();
-         } else {
-            break;
-         }
-
-         // pipeline.add("l");
-
-      }
-      // increment instructions cycles
-      instruction += 1;
       // increment number of cycles
       // must account for delays
 
@@ -232,8 +225,42 @@ public class mipsSimulator extends mipsEmulator {
       // use after load: clock += 1;
       // jump: clock +=1;
 
-      System.out.printf("\t%d instruction(s) executed\n", stepsExecuted);
+      for (int i = 0; i < numOfSteps; i++) {
+         //only step through pipeline if pc is not at end of program
+         //and instructions are still in pipeline
+         if (pc < program.size() & !piplineEmpty()) 
+         {
+            //if instructions left feed into pipeline
+            //if not feed in emptys
+            //functions? enqueue/dequeue? shift?
 
+            //check incoming instruction feeding into pipeline
+            //decide if to execute or simulate?
+
+            //if execute run like normal
+
+            //if simulate, (like for branch),
+            //simulate what pipeline would do until it
+            //catches up to execute. then return to normal executing
+
+            if (execute)
+               executeInst();
+
+            // increment number of instructions for each instruction added to pipeline?
+            // increment for each instruction coming out of the pipeline? is there a difference
+            instruction += 1;
+
+            // increment clock cycles for every step through pipeline
+            clock += 1;
+         } 
+         else 
+         {
+            break;
+         }
+      }
+
+      // print current pipeline
+      showPipeline();
    }
 
    @Override
@@ -261,25 +288,30 @@ public class mipsSimulator extends mipsEmulator {
       System.out.println("\tSimulator reset");
    }
 
-   public void initStages() {
-      // fill in names of stages
-      stages.add("IF");
-      stages.add("ID");
-      stages.add("EXE");
-      stages.add("MEM");
-      stages.add("WB");
-
-   }
-
-   public void initQueue() {
+   public void initPipeline() {
       // remove anything in the pipeline
-      while (pipeline.size() > 0)
-         pipeline.remove();
+         pipeline.clear();
 
       // fill in pipeline with strings
-      for (int i = 0; i < stages.size() - 1; i++)
+      for (int i = 0; i < 4; i++)
          pipeline.add("empty");
 
    }
 
+   public boolean piplineEmpty()
+   {
+      // function is to check if pipleine is empty
+      // primarily used to check if end of program condition reached
+
+      boolean empty = false;
+
+      // if all segments of the pipeline are empty, set flag as true
+      if (pipeline.get(0).contains("empty") &
+          pipeline.get(1).contains("empty") &
+          pipeline.get(2).contains("empty") &
+          pipeline.get(3).contains("empty"))
+          empty = true;
+
+      return empty;
+   }
 }
