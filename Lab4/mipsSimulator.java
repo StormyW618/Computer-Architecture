@@ -234,6 +234,8 @@ public class mipsSimulator extends mipsEmulator {
             //if not feed in emptys
             if(pc < program.size())
             {
+               //add in case to check inside pipeline
+               //check rt of load instruct vs rs and rt for register instructs
                shiftPipeline(program.get(pc).instruct);
             }
             else
@@ -243,6 +245,13 @@ public class mipsSimulator extends mipsEmulator {
 
             //check incoming instruction feeding into pipeline
             //decide if to execute or simulate?
+            //if(pipeline(0) == branch)
+               //{ execute = 0};
+               //...
+               //if(execute)
+               //{run as normal}
+               //else
+               //{simulate pipeline}
             //maybe change execute to delay? and in this loop decide weather to
             //execution of instructions like regular or to simulate a delay.
             //functions that return to boolean if we do delay portion of code or not.
@@ -255,12 +264,14 @@ public class mipsSimulator extends mipsEmulator {
             //catches up to execute. then return to normal executing
 
             if (execute)
+            {
                executeInst();
 
-            // increment number of instructions for each instruction added to pipeline?
-            // increment for each instruction coming out of the pipeline? is there a difference
-            instruction += 1;
-
+               // increment number of instructions for each instruction added to pipeline?
+               // increment for each instruction coming out of the pipeline? is there a difference
+               instruction += 1;
+            }
+            
             // increment clock cycles for every step through pipeline
             clock += 1;
          } 
