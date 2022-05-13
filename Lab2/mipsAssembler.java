@@ -314,6 +314,8 @@ public class mipsAssembler {
                 //if so is it alone?
                 if (line.contains(":") && !line.contains("j") && !line.contains("$")) {
                     line = line.trim();
+                    line = line.replace(":", " ");
+                    splitLine = line.split(" ");
                     splitLine = line.split(":");
                     instlist.add(splitLine[0]);
                 }
@@ -321,6 +323,8 @@ public class mipsAssembler {
                 // split label from instruction and then parse
                 else if (line.contains(":") && (line.contains("$") || (line.contains("j")))) {
                     line = line.trim();
+                    line = line.replace(":", " ");
+                    splitLine = line.split(" ");
                     splitLine = line.split(":");
                     instlist = parseInstruction(splitLine[1],instlist);
                 }

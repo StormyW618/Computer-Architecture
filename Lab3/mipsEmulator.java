@@ -7,7 +7,7 @@
  * 
  */
 
-package Lab3;
+//package Lab3;
 
 import Lab2.Instruction;
 import Lab2.mipsAssembler;
@@ -247,6 +247,7 @@ public class mipsEmulator {
       }
    }
 
+
    public void memory(int num1, int num2)
    {
       //printing out values from datamemory[num1] to datamemory[num2]
@@ -262,6 +263,7 @@ public class mipsEmulator {
 
    public void clear()
    {
+
       //clear pc
       pc = 0;
       //clear memory

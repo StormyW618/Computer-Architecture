@@ -16,7 +16,7 @@
  *              this process is automated.
  */
 
-package Lab3;
+//package Lab3;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,10 +43,11 @@ public class lab3 {
                   // close scanner
                   user_input.close();
                   // pass to command function takes string input
-                  test1Em.command(user);
+
                   // break from while loop
                   break;
                } else {
+                  System.out.println("program continues");
                   // pass to command function
                   if(user.length()>0)
                   {
