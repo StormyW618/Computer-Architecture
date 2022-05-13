@@ -78,6 +78,36 @@ public class mipsSimulator extends mipsEmulator {
 
    // stall function? - to insert a stall in the queue?
    // stall Detect? to determine when to stall?
+   //hazard detection functions
+   //inputs: instruction output from IF/ID stage, ID/EX mem read
+   //outputs: adds stall to pipeline or doesn't
+   public void hazard_detection(){
+      //check for use after load hazard
+      //requires one clock cycle delay
+      if(pipeline.get(1).contains("lw")){
+         //use program arraylist in someway?
+         //if pipeline.get(0) rt or rs == pipeline.get(1) rt
+            //partially shift pipeline and insert stall
+            pipeline.set(3, pipeline.get(2));
+            pipeline.set(2, pipeline.get(1));
+            pipeline.set(1, "stall");
+      }
+      //check for uncoditional jumps 
+      //requires one clock cycle delay
+      if(pipeline.get(0).contains("j")||pipeline.get(0).contains("jal")||pipeline.get(0).contains("jr")){
+         shiftPipeline("squash");
+      }
+      // check for taken branch conditions
+      //must figure out of to check if branch taken?
+      //requires three clock cycle delay
+      if(pipeline.get(0).contains("beq")){
+         //add in delays
+         pipeline.set(3, pipeline.get(2));
+         pipeline.set(2, "squash");
+         pipeline.set(1, "squash");
+         pipeline.set(0, "squash");
+      }
+   }
 
    // user commands
    @Override
