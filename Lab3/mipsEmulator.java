@@ -7,7 +7,7 @@
  * 
  */
 
-package Lab3;
+//package Lab3;
 
 import Lab2.Instruction;
 import Lab2.mipsAssembler;
