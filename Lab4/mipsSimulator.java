@@ -81,6 +81,7 @@ public class mipsSimulator extends mipsEmulator {
    //hazard detection functions
    //inputs: instruction output from IF/ID stage, ID/EX mem read
    //outputs: adds stall to pipeline or doesn't
+   //make a call to this function for every instruction in pipeline
    public void hazard_detection(){
       //check for use after load hazard
       if(pipeline.get(1).contains("lw") && program.get(pc - 1).rt == program.get(pc).rt || program.get(pc - 1).rt == program.get(pc).rs ){
@@ -92,8 +93,9 @@ public class mipsSimulator extends mipsEmulator {
          //pass to unconditional jump resolution function
          unconditional_jump();
       }
-      // check for taken branch conditions
-      if(pipeline.get(0).contains("beq") ||pipeline.get(0).contains("bne")){
+      // check for branch hazards
+      //program continues to run normally until exe/mem state//
+      if(pipeline.get(2).contains("beq") ||pipeline.get(2).contains("bne")){
          //pass to branch hazard resolution function
          branch_hazard();
       }
@@ -111,11 +113,30 @@ public class mipsSimulator extends mipsEmulator {
    }
 
    public void branch_hazard(){
-      
-      pipeline.set(3, pipeline.get(2));
-      pipeline.set(2, "squash");
-      pipeline.set(1, "squash");
-      pipeline.set(0, "squash");
+      //check if beq instruction
+      if(pipeline.get(2).contains("beq")){
+         //check if branch was taken 
+         //if taken, 3 wrong path instructions taken
+         //if not, do nothing, everything works fine
+         if(program.get(pc-3).rs == program.get(pc-3).rt){
+            pipeline.set(3, pipeline.get(2));
+            pipeline.set(2, "squash");
+            pipeline.set(1, "squash");
+            pipeline.set(0, "squash");
+         }
+      }
+       //check if bne instruction
+       if(pipeline.get(2).contains("bne")){
+         //check if branch was taken 
+         //if taken, 3 wrong path instructions taken
+         //if not, do nothing, everything works fine
+         if(program.get(pc-3).rs != program.get(pc-3).rt){
+            pipeline.set(3, pipeline.get(2));
+            pipeline.set(2, "squash");
+            pipeline.set(1, "squash");
+            pipeline.set(0, "squash");
+         }
+      }
    }
 
    // user commands
