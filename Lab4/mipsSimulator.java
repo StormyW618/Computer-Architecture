@@ -83,30 +83,39 @@ public class mipsSimulator extends mipsEmulator {
    //outputs: adds stall to pipeline or doesn't
    public void hazard_detection(){
       //check for use after load hazard
-      //requires one clock cycle delay
-      if(pipeline.get(1).contains("lw")){
-         //use program arraylist in someway?
-         //if pipeline.get(0) rt or rs == pipeline.get(1) rt
-            //partially shift pipeline and insert stall
-            pipeline.set(3, pipeline.get(2));
-            pipeline.set(2, pipeline.get(1));
-            pipeline.set(1, "stall");
+      if(pipeline.get(1).contains("lw") && program.get(pc - 1).rt == program.get(pc).rt || program.get(pc - 1).rt == program.get(pc).rs ){
+            //paas to use after load resolution function
+            use_after_load();
       }
-      //check for uncoditional jumps 
-      //requires one clock cycle delay
+      //check for uncoditional jump hazard
       if(pipeline.get(0).contains("j")||pipeline.get(0).contains("jal")||pipeline.get(0).contains("jr")){
-         shiftPipeline("squash");
+         //pass to unconditional jump resolution function
+         unconditional_jump();
       }
       // check for taken branch conditions
-      //must figure out of to check if branch taken?
-      //requires three clock cycle delay
-      if(pipeline.get(0).contains("beq")){
-         //add in delays
-         pipeline.set(3, pipeline.get(2));
-         pipeline.set(2, "squash");
-         pipeline.set(1, "squash");
-         pipeline.set(0, "squash");
+      if(pipeline.get(0).contains("beq") ||pipeline.get(0).contains("bne")){
+         //pass to branch hazard resolution function
+         branch_hazard();
       }
+   }
+
+   public void use_after_load(){
+       //partially shift pipeline and insert stall
+       pipeline.set(3, pipeline.get(2));
+       pipeline.set(2, pipeline.get(1));
+       pipeline.set(1, "stall");
+   }
+
+   public void unconditional_jump(){
+      shiftPipeline("squash");
+   }
+
+   public void branch_hazard(){
+      
+      pipeline.set(3, pipeline.get(2));
+      pipeline.set(2, "squash");
+      pipeline.set(1, "squash");
+      pipeline.set(0, "squash");
    }
 
    // user commands
