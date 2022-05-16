@@ -78,65 +78,72 @@ public class mipsSimulator extends mipsEmulator {
 
    // stall function? - to insert a stall in the queue?
    // stall Detect? to determine when to stall?
-   //hazard detection functions
-   //inputs: instruction output from IF/ID stage, ID/EX mem read
-   //outputs: adds stall to pipeline or doesn't
-   //make a call to this function for every instruction in pipeline
-   public void hazard_detection(){
-      //check for use after load hazard
-      if(pipeline.get(1).contains("lw") && program.get(pc - 1).rt == program.get(pc).rt || program.get(pc - 1).rt == program.get(pc).rs ){
-            //paas to use after load resolution function
-            use_after_load();
+   // hazard detection functions
+   // inputs: instruction output from IF/ID stage, ID/EX mem read
+   // outputs: adds stall to pipeline or doesn't
+   // make a call to this function for every instruction in pipeline
+   public void hazard_detection() {
+      // check for use after load hazard
+      if (pipeline.get(1).contains("lw") && program.get(pc - 1).rt == program.get(pc).rt
+            || program.get(pc - 1).rt == program.get(pc).rs) {
+         // paas to use after load resolution function
+         use_after_load();
       }
-      //check for uncoditional jump hazard
-      if(pipeline.get(0).contains("j")||pipeline.get(0).contains("jal")||pipeline.get(0).contains("jr")){
-         //pass to unconditional jump resolution function
+      // check for uncoditional jump hazard
+      if (pipeline.get(0).contains("j") || pipeline.get(0).contains("jal") || pipeline.get(0).contains("jr")) {
+         // pass to unconditional jump resolution function
          unconditional_jump();
       }
       // check for branch hazards
-      //program continues to run normally until exe/mem state//
-      if(pipeline.get(2).contains("beq") ||pipeline.get(2).contains("bne")){
-         //pass to branch hazard resolution function
+      // program continues to run normally until exe/mem state//
+      if (pipeline.get(2).contains("beq") || pipeline.get(2).contains("bne")) {
+         // pass to branch hazard resolution function
          branch_hazard();
       }
    }
 
-   public void use_after_load(){
-       //partially shift pipeline and insert stall
-       pipeline.set(3, pipeline.get(2));
-       pipeline.set(2, pipeline.get(1));
-       pipeline.set(1, "stall");
+   public void use_after_load() {
+      // partially shift pipeline and insert stall
+      pipeline.set(3, pipeline.get(2));
+      pipeline.set(2, pipeline.get(1));
+      pipeline.set(1, "stall");
+      // delays
+      clock += 1;
    }
 
-   public void unconditional_jump(){
+   public void unconditional_jump() {
       shiftPipeline("squash");
+      // delays
+      clock += 1;
    }
 
-   public void branch_hazard(){
-      //check if beq instruction
-      if(pipeline.get(2).contains("beq")){
-         //check if branch was taken 
-         //if taken, 3 wrong path instructions taken
-         //if not, do nothing, everything works fine
-         if(program.get(pc-3).rs == program.get(pc-3).rt){
+   public void branch_hazard() {
+      // check if beq instruction
+      if (pipeline.get(2).contains("beq")) {
+         // check if branch was taken
+         // if taken, 3 wrong path instructions taken
+         // if not, do nothing, everything works fine
+         if (program.get(pc - 3).rs == program.get(pc - 3).rt) {
             pipeline.set(3, pipeline.get(2));
             pipeline.set(2, "squash");
             pipeline.set(1, "squash");
             pipeline.set(0, "squash");
          }
       }
-       //check if bne instruction
-       if(pipeline.get(2).contains("bne")){
-         //check if branch was taken 
-         //if taken, 3 wrong path instructions taken
-         //if not, do nothing, everything works fine
-         if(program.get(pc-3).rs != program.get(pc-3).rt){
+      // check if bne instruction
+      if (pipeline.get(2).contains("bne")) {
+         // check if branch was taken
+         // if taken, 3 wrong path instructions taken
+         // if not, do nothing, everything works fine
+         if (program.get(pc - 3).rs != program.get(pc - 3).rt) {
             pipeline.set(3, pipeline.get(2));
             pipeline.set(2, "squash");
             pipeline.set(1, "squash");
             pipeline.set(0, "squash");
          }
       }
+      // delays
+      clock += 3;
    }
 
    // user commands
@@ -164,18 +171,21 @@ public class mipsSimulator extends mipsEmulator {
             break;
 
          case 'p':
-         // show pipeline register 
-         showPipeline();
-         break;
+            // show pipeline register
+            showPipeline();
+            break;
 
          case 's':
             // step through the program
             // single or multiple based on input
             String[] splitInput = userInput.split(" ");
-            if (splitInput.length == 1) {
+            if (splitInput.length == 1) 
+            {
                // run step command for 1 iteration
                step(1);
-            } else if (splitInput.length == 2) {
+            } 
+            else if (splitInput.length == 2) 
+            {
                splitInput[1] = splitInput[1].trim();
                try {
                   // get number of steps after s command
@@ -187,6 +197,9 @@ public class mipsSimulator extends mipsEmulator {
             } else {
                System.out.println("Too many arguments, try again.");
             }
+
+            // print current pipeline
+            showPipeline();
 
             break;
 
@@ -249,13 +262,13 @@ public class mipsSimulator extends mipsEmulator {
 
    public void showPipeline() {
 
-      //System.out.println("pc    IF/ID    ID/EXE    EXE/MEM    MEM/WB");
+      // System.out.println("pc IF/ID ID/EXE EXE/MEM MEM/WB");
       System.out.printf("%3s    %-7s  %-7s  %-7s  %-7s\n",
-                        "pc",
-                        "if/id",
-                        "id/exe",
-                        "exe/mem",
-                        "mem/wb");
+            "pc",
+            "if/id",
+            "id/exe",
+            "exe/mem",
+            "mem/wb");
 
       System.out.printf("%3s    %-7s  %-7s  %-7s  %-7s\n",
             pc,
@@ -271,7 +284,7 @@ public class mipsSimulator extends mipsEmulator {
       // instructions steping through the pipeline.
       // each step through the pipeline is a clock cycle.
       // delays are added as needed per instruction.
-      // instructions are retrieved and executed 
+      // instructions are retrieved and executed
       // from program array list and executeInst method
       // in mipsEmulator.
 
@@ -285,71 +298,67 @@ public class mipsSimulator extends mipsEmulator {
       // use after load: clock += 1;
       // jump: clock +=1;
 
+      // check incoming instruction feeding into pipeline
+      // decide if to execute or simulate?
+      // if(pipeline(0) == branch)
+      // { execute = 0};
+      // ...
+      // if(execute)
+      // {run as normal}
+      // else
+      // {simulate pipeline}
+      // maybe change execute to delay? and in this loop decide weather to
+      // execution of instructions like regular or to simulate a delay.
+      // functions that return to boolean if we do delay portion of code or not.
+      // functions that help decide when to turn boolean back?
+
+      // if execute run like normal
+
+      // if simulate, (like for branch),
+      // simulate what pipeline would do until it
+      // catches up to execute. then return to normal executing
+
       for (int i = 0; i < numOfSteps; i++) {
-         //only step through pipeline if pc is not at end of program
-         //or instructions are still in pipeline
-         if (pc < program.size() | !piplineEmpty()) 
-         {
-            //if instructions left feed into pipeline
-            //if not feed in emptys
-            if(pc < program.size())
-            {
-               //add in case to check inside pipeline
-               //check rt of load instruct vs rs and rt for register instructs
+         // only step through pipeline if pc is not at end of program
+         // or instructions are still in pipeline
+         if (pc < program.size() | !piplineEmpty()) {
+            // if instructions left feed into pipeline
+            // if not feed in emptys
+            if (pc < program.size()) {
+               // add in case to check inside pipeline
+               // check rt of load instruct vs rs and rt for register instructs
                shiftPipeline(program.get(pc).instruct);
-            }
-            else
-            {
-               shiftPipeline("empty");
-            }
-
-            //check incoming instruction feeding into pipeline
-            //decide if to execute or simulate?
-            //if(pipeline(0) == branch)
-               //{ execute = 0};
-               //...
-               //if(execute)
-               //{run as normal}
-               //else
-               //{simulate pipeline}
-            //maybe change execute to delay? and in this loop decide weather to
-            //execution of instructions like regular or to simulate a delay.
-            //functions that return to boolean if we do delay portion of code or not.
-            //functions that help decide when to turn boolean back?
-
-            //if execute run like normal
-
-            //if simulate, (like for branch),
-            //simulate what pipeline would do until it
-            //catches up to execute. then return to normal executing
-
-            if (execute)
-            {
                executeInst();
-
-               // increment number of instructions for each instruction added to pipeline?
-               // increment for each instruction coming out of the pipeline? is there a difference
                instruction += 1;
+            } else {
+               shiftPipeline("empty");
+
             }
-            
+
             // increment clock cycles for every step through pipeline
             clock += 1;
-         } 
-         else 
-         {
+         } else {
             break;
          }
       }
-
-      // print current pipeline
-      showPipeline();
    }
 
    @Override
    public void run() {
-      while (pc < program.size()) {
-         executeInst();
+      // complete program
+      while (pc < program.size() | !piplineEmpty()) {
+         step(1);
       }
+
+      // calculations
+      // example output:
+      // Program complete
+      // CPI = 1.400 Cycles = 42 Instructions = 30
+      float cpi = clock / instruction;
+      System.out.println("\nProgram complete");
+      System.out.printf("CPI = %.2f ", cpi);
+      System.out.printf("Cycles = %d ", clock);
+      System.out.printf("Instructions = %d\n\n", instruction);
    }
 
    @Override
@@ -372,7 +381,7 @@ public class mipsSimulator extends mipsEmulator {
 
    public void initPipeline() {
       // remove anything in the pipeline
-         pipeline.clear();
+      pipeline.clear();
 
       // fill in pipeline with strings
       for (int i = 0; i < 4; i++)
@@ -380,8 +389,7 @@ public class mipsSimulator extends mipsEmulator {
 
    }
 
-   public boolean piplineEmpty()
-   {
+   public boolean piplineEmpty() {
       // function is to check if pipleine is empty
       // primarily used to check if end of program condition reached
 
@@ -389,16 +397,15 @@ public class mipsSimulator extends mipsEmulator {
 
       // if all segments of the pipeline are empty, set flag as true
       if (pipeline.get(0).contains("empty") &
-          pipeline.get(1).contains("empty") &
-          pipeline.get(2).contains("empty") &
-          pipeline.get(3).contains("empty"))
-          empty = true;
+            pipeline.get(1).contains("empty") &
+            pipeline.get(2).contains("empty") &
+            pipeline.get(3).contains("empty"))
+         empty = true;
 
       return empty;
    }
 
-   public void shiftPipeline(String input)
-   {
+   public void shiftPipeline(String input) {
       pipeline.set(3, pipeline.get(2));
       pipeline.set(2, pipeline.get(1));
       pipeline.set(1, pipeline.get(0));
