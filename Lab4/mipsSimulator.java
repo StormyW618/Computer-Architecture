@@ -78,137 +78,6 @@ public class mipsSimulator extends mipsEmulator {
 
    }
 
-   // stall function? - to insert a stall in the queue?
-   // stall Detect? to determine when to stall?
-   // hazard detection functions
-   // inputs: instruction output from IF/ID stage, ID/EX mem read
-   // outputs: adds stall to pipeline or doesn't
-   // make a call to this function for every instruction in pipeline
-   public int hazard_detection() {
-      // check for use after load hazard
-      if (pipeline.get(1).contains("lw")) {
-         if (!(program.get(pc - 1).rt == 0)) {
-            if (program.get(pc).type.contains("R")) {
-               if (program.get(pc - 1).rt == program.get(pc).rt
-                     || program.get(pc - 1).rt == program.get(pc).rs)
-                  return 1;
-            } else if (program.get(pc).type.contains("I")) {
-               if (program.get(pc - 1).rt == program.get(pc).rs) {
-                  return 1;
-               }
-
-            }
-
-         }
-      }
-
-      // check for uncoditional jump hazard
-      if (pipeline.get(0).contains("j") || pipeline.get(0).contains("jal") || pipeline.get(0).contains("jr")) {
-         pcSim = pc;
-         return 2;
-      }
-      // check for branch hazards
-      // program continues to run normally until exe/mem state//
-      if (pipeline.get(0).contains("beq") || pipeline.get(0).contains("bne")) {
-         if (pipeline.get(0).contains("beq")) {
-            if (registers[program.get(pc).rs] == registers[program.get(pc).rt]) {
-               pcSim = pc;
-               branchShiftCnt = 0;
-               return 3;
-            }
-         } else if (pipeline.get(0).contains("bne")) {
-            if (registers[program.get(pc).rs] != registers[program.get(pc).rt]) {
-               pcSim = pc;
-               branchShiftCnt = 0;
-               return 3;
-            }
-         }
-
-      }
-
-      return 0;
-   }
-
-   public void hazard_resolve() {
-      // check for use after load hazard
-      if (hazard == 1) {
-         // paas to use after load resolution function
-         use_after_load();
-      }
-      // check for uncoditional jump hazard
-      if (hazard == 2) {
-         // pass to unconditional jump resolution function
-         unconditional_jump();
-      }
-      // check for branch hazards
-      // program continues to run normally until exe/mem state//
-      if (hazard == 3) {
-         // pass to branch hazard resolution function
-         branch_hazard();
-      }
-   }
-
-   public void use_after_load() {
-      // partially shift pipeline and insert stall
-      pipeline.set(3, pipeline.get(2));
-      pipeline.set(2, pipeline.get(1));
-      pipeline.set(1, "stall");
-      // delays
-      // clock += 1;
-      hazard = 0;
-   }
-
-   public void unconditional_jump() {
-      shiftPipeline("squash");
-      // delays
-      //clock += 1;
-      hazard = 0;
-   }
-
-   // print stages leading up to hazard branch reaching exe/mem
-   public void branch_hazard() {
-      // check if beq or bne instruction is in exe/mem stage of pipeline
-      if (pipeline.get(2).contains("beq") && branchShiftCnt == 2) {
-         // check if branch was taken
-         // if taken, 3 wrong path instructions taken
-         // if not, do nothing, everything works fine
-         //if (registers[program.get(pc).rs] == registers[program.get(pc).rt]) {
-            pipeline.set(3, pipeline.get(2));
-            pipeline.set(2, "squash");
-            pipeline.set(1, "squash");
-            pipeline.set(0, "squash");
-         // }
-         // // not taken path
-         // else {
-
-         // }
-         // clear hazard
-         hazard = 0;
-      } else if (pipeline.get(2).contains("bne") && branchShiftCnt == 2) {
-         // check if branch was taken
-         // if taken, 3 wrong path instructions taken
-         // if not, do nothing, everything works fine
-         //if (registers[program.get(pc).rs] != registers[program.get(pc).rt]) {
-            pipeline.set(3, pipeline.get(2));
-            pipeline.set(2, "squash");
-            pipeline.set(1, "squash");
-            pipeline.set(0, "squash");
-         // } else {
-
-         // }
-         // clear hazard
-         hazard = 0;
-      } else {
-         branchShiftCnt++;
-         pcSim++;
-         shiftPipeline(program.get(pcSim).instruct);
-
-      }
-      // delays
-      // clock += 3;
-      // hazard = 0;
-   }
-
    // user commands
    @Override
    public void command(String userInput) {
@@ -330,21 +199,14 @@ public class mipsSimulator extends mipsEmulator {
             "exe/mem",
             "mem/wb");
 
-      if (hazard == 0) {
+      if (hazard == 0 || hazard == 1) {
          System.out.printf("%3s    %-7s  %-7s  %-7s  %-7s\n",
                pc,
                pipeline.get(0),
                pipeline.get(1),
                pipeline.get(2),
                pipeline.get(3));
-      } else if (hazard == 2) {
-         System.out.printf("%3s    %-7s  %-7s  %-7s  %-7s\n",
-               pcSim + 1,
-               pipeline.get(0),
-               pipeline.get(1),
-               pipeline.get(2),
-               pipeline.get(3));
-      } else if (hazard == 3) {
+      } else if (hazard == 2 || hazard == 3) {
          System.out.printf("%3s    %-7s  %-7s  %-7s  %-7s\n",
                pcSim + 1,
                pipeline.get(0),
@@ -352,6 +214,7 @@ public class mipsSimulator extends mipsEmulator {
                pipeline.get(2),
                pipeline.get(3));
       }
+
    }
 
    @Override
@@ -371,24 +234,19 @@ public class mipsSimulator extends mipsEmulator {
             // check if hazard is active
             if (hazard != 0) {
                hazard_resolve();
-               // R vs I type in detection
             } else {
                // if instructions left feed into pipeline
                // if not feed in emptys
                if (pc < program.size()) {
-                  // add in case to check inside pipeline
-                  // check rt of load instruct vs rs and rt for register instructs
+                  //put new instruction in pipeline
                   shiftPipeline(program.get(pc).instruct);
 
                   // check if hazard present after shifting
                   hazard = hazard_detection();
 
-                  // save pc here instead
-                  // if no hazard, run as normal
-                  // if(!hazard){
+                  //execute new instruction in pipeline
                   executeInst();
                   instruction += 1;
-                  // }
 
                } else {
                   shiftPipeline("empty");
@@ -440,6 +298,7 @@ public class mipsSimulator extends mipsEmulator {
       System.out.println("\tSimulator reset");
    }
 
+   //pipeline functions
    public void initPipeline() {
       // remove anything in the pipeline
       pipeline.clear();
@@ -472,4 +331,117 @@ public class mipsSimulator extends mipsEmulator {
       pipeline.set(1, pipeline.get(0));
       pipeline.set(0, input);
    }
+
+   public int hazard_detection() {
+      // check for use after load hazard
+      if (pipeline.get(1).contains("lw")) {
+         if (!(program.get(pc - 1).rt == 0)) {
+            if (program.get(pc).type.contains("R")) {
+               if (program.get(pc - 1).rt == program.get(pc).rt
+                     || program.get(pc - 1).rt == program.get(pc).rs)
+                  return 1;
+            } else if (program.get(pc).type.contains("I")) {
+               if (program.get(pc - 1).rt == program.get(pc).rs) {
+                  return 1;
+               }
+
+            }
+
+         }
+      }
+
+      // check for uncoditional jump hazard
+      if (pipeline.get(0).contains("j") || pipeline.get(0).contains("jal") || pipeline.get(0).contains("jr")) {
+         pcSim = pc;
+         return 2;
+      }
+      // check for branch hazards
+      // program continues to run normally until exe/mem state//
+      if (pipeline.get(0).contains("beq") || pipeline.get(0).contains("bne")) {
+         if (pipeline.get(0).contains("beq")) {
+            if (registers[program.get(pc).rs] == registers[program.get(pc).rt]) {
+               pcSim = pc;
+               branchShiftCnt = 0;
+               return 3;
+            }
+         } else if (pipeline.get(0).contains("bne")) {
+            if (registers[program.get(pc).rs] != registers[program.get(pc).rt]) {
+               pcSim = pc;
+               branchShiftCnt = 0;
+               return 3;
+            }
+         }
+
+      }
+
+      return 0;
+   }
+
+   public void hazard_resolve() {
+      // check for use after load hazard
+      if (hazard == 1) {
+         // paas to use after load resolution function
+         use_after_load();
+      }
+      // check for uncoditional jump hazard
+      if (hazard == 2) {
+         // pass to unconditional jump resolution function
+         unconditional_jump();
+      }
+      // check for branch hazards
+      // program continues to run normally until exe/mem state//
+      if (hazard == 3) {
+         // pass to branch hazard resolution function
+         branch_hazard();
+      }
+   }
+
+   public void use_after_load() {
+      // partially shift pipeline and insert stall
+      pipeline.set(3, pipeline.get(2));
+      pipeline.set(2, pipeline.get(1));
+      pipeline.set(1, "stall");
+      //reset hazard flag
+      hazard = 0;
+   }
+
+   public void unconditional_jump() {
+      shiftPipeline("squash");
+      //reset hazard flag
+      hazard = 0;
+   }
+
+   public void branch_hazard() {
+      // check if beq or bne instruction is in exe/mem stage of pipeline
+      if (pipeline.get(2).contains("beq") && branchShiftCnt == 2) {
+         // check if branch was taken
+         // if taken, 3 wrong path instructions taken
+         // if not, do nothing, everything works fine
+            pipeline.set(3, pipeline.get(2));
+            pipeline.set(2, "squash");
+            pipeline.set(1, "squash");
+            pipeline.set(0, "squash");
+
+         // clear hazard
+         hazard = 0;
+      } else if (pipeline.get(2).contains("bne") && branchShiftCnt == 2) {
+         // check if branch was taken
+         // if taken, 3 wrong path instructions taken
+         // if not, do nothing, everything works fine
+            pipeline.set(3, pipeline.get(2));
+            pipeline.set(2, "squash");
+            pipeline.set(1, "squash");
+            pipeline.set(0, "squash");
+
+         // clear hazard
+         hazard = 0;
+      } else {
+         branchShiftCnt++;
+         pcSim++;
+         shiftPipeline(program.get(pcSim).instruct);
+
+      }
+   }
+
+
 }
