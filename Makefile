@@ -41,3 +41,22 @@ L3test2:
 L3test3:
 	java Lab3/lab3 Lab3/test3.asm Lab3/script3 > Lab3/out3
 	diff -w -B Lab3/output3 Lab3/out3
+
+lab4:
+	javac Lab4/lab4.java
+
+L4test1:
+	java Lab4/lab4 Lab4/test1.asm Lab4/script1 > Lab4/out1
+	diff -w -B Lab4/output1 Lab4/out1
+
+L4test2:
+	java Lab4/lab4 Lab4/test2.asm Lab4/script2 > Lab4/out2
+	diff -w -B Lab4/output2 Lab4/out2
+
+L4test3:
+	java Lab4/lab4 Lab4/test3.asm Lab4/script3 > Lab4/out3
+	diff -w -B Lab4/output3 Lab4/output3
+
+L4test4:
+	java Lab4/lab4 Lab4/test4.asm Lab4/script4 > Lab4/out4
+	diff -w -B Lab4/output4 Lab4/out4

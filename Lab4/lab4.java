@@ -17,13 +17,11 @@
  */
 
 package Lab4;
-
+ 
 import Lab2.mipsAssembler;
-import Lab3.mipsEmulator;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
-import Lab4.*;
 
 public class lab4 {
 
@@ -63,7 +61,7 @@ public class lab4 {
             // Scanner file_input = new Scanner(new File ("Lab3/script2"));
             while (true) {
                String file = file_input.nextLine();// obtaining file input
-               System.out.println("\nmips> " + file);// printing prompt
+               System.out.println("mips> " + file + "\n");// printing prompt
                // checking if quit command entered
                if (file.contains("q")) {
                   // close scanner
