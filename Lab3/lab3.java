@@ -16,7 +16,7 @@
  *              this process is automated.
  */
 
-//package Lab3;
+package Lab3;
 
 import java.io.File;
 import java.io.FileNotFoundException;
