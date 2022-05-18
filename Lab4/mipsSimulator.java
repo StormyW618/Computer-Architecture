@@ -82,6 +82,7 @@ public class mipsSimulator extends mipsEmulator {
    //inputs: instruction output from IF/ID stage, ID/EX mem read
    //outputs: adds stall to pipeline or doesn't
    //make a call to this function for every instruction in pipeline
+   //change to boolean to implement hazard flag
    public void hazard_detection(){
       //check for use after load hazard
       if(pipeline.get(1).contains("lw") && program.get(pc - 1).rt == program.get(pc).rt || program.get(pc - 1).rt == program.get(pc).rs ){
@@ -292,6 +293,7 @@ public class mipsSimulator extends mipsEmulator {
          {
             //if instructions left feed into pipeline
             //if not feed in emptys
+            //check hazard flag   
             if(pc < program.size())
             {
                //add in case to check inside pipeline
