@@ -228,21 +228,17 @@ public class mipsSimulator extends mipsEmulator {
       // in mipsEmulator.
 
       for (int i = 0; i < numOfSteps; i++) {
-         //only step through pipeline if pc is not at end of program
-         //or instructions are still in pipeline
-         if (pc < program.size() | !piplineEmpty()) 
-         {
-            //if instructions left feed into pipeline
-            //if not feed in emptys
-            //check hazard flag   
-            if(pc < program.size())
-            {
-               //add in case to check inside pipeline
-               //check rt of load instruct vs rs and rt for register instructs
+         // only step through pipeline if pc is not at end of program
+         // or instructions are still in pipeline
+         if (pc < program.size() | !piplineEmpty()) {
+            // if instructions left feed into pipeline
+            // if not feed in emptys
+            // check hazard flag
+            if (pc < program.size()) {
+               // add in case to check inside pipeline
+               // check rt of load instruct vs rs and rt for register instructs
                shiftPipeline(program.get(pc).instruct);
-            }
-            else
-            {
+            } else {
                shiftPipeline("empty");
             }
 
@@ -290,7 +286,7 @@ public class mipsSimulator extends mipsEmulator {
       System.out.println("\tSimulator reset");
    }
 
-   //pipeline functions
+   // pipeline functions
    public void initPipeline() {
       // remove anything in the pipeline
       pipeline.clear();
@@ -393,13 +389,13 @@ public class mipsSimulator extends mipsEmulator {
       pipeline.set(3, pipeline.get(2));
       pipeline.set(2, pipeline.get(1));
       pipeline.set(1, "stall");
-      //reset hazard flag
+      // reset hazard flag
       hazard = 0;
    }
 
    public void unconditional_jump() {
       shiftPipeline("squash");
-      //reset hazard flag
+      // reset hazard flag
       hazard = 0;
    }
 
@@ -409,10 +405,10 @@ public class mipsSimulator extends mipsEmulator {
          // check if branch was taken
          // if taken, 3 wrong path instructions taken
          // if not, do nothing, everything works fine
-            pipeline.set(3, pipeline.get(2));
-            pipeline.set(2, "squash");
-            pipeline.set(1, "squash");
-            pipeline.set(0, "squash");
+         pipeline.set(3, pipeline.get(2));
+         pipeline.set(2, "squash");
+         pipeline.set(1, "squash");
+         pipeline.set(0, "squash");
 
          // clear hazard
          hazard = 0;
@@ -420,10 +416,10 @@ public class mipsSimulator extends mipsEmulator {
          // check if branch was taken
          // if taken, 3 wrong path instructions taken
          // if not, do nothing, everything works fine
-            pipeline.set(3, pipeline.get(2));
-            pipeline.set(2, "squash");
-            pipeline.set(1, "squash");
-            pipeline.set(0, "squash");
+         pipeline.set(3, pipeline.get(2));
+         pipeline.set(2, "squash");
+         pipeline.set(1, "squash");
+         pipeline.set(0, "squash");
 
          // clear hazard
          hazard = 0;
@@ -434,6 +430,5 @@ public class mipsSimulator extends mipsEmulator {
 
       }
    }
-
 
 }
