@@ -15,8 +15,6 @@ import Lab2.mipsAssembler;
 import java.util.ArrayList;
 import Lab3.mipsEmulator;
 
-//todo
-//flesh out class
 
 public class mipsSimulator extends mipsEmulator {
    /****************************************************
