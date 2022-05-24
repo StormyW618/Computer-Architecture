@@ -28,7 +28,18 @@ public class Lab5 {
     public static void main(String[] args) {
         // define mips objects
         mipsAssembler testAsm = new mipsAssembler(args[0]);
-        mipsPredictor testPred = new mipsPredictor(testAsm);
+        mipsPredictor testPred;
+        //if user gave size for ghr, initialize with value here
+        if(args.length == 3)
+        {
+            testPred = new mipsPredictor(testAsm, Integer.parseInt(args[2]));
+        }
+        else
+        {
+            testPred = new mipsPredictor(testAsm);
+        }
+
+
         if (args.length == 1) {
            try {
               // scanner to access user input from console
