@@ -298,59 +298,5 @@ public class mipsPredictor extends mipsEmulator {
         ghr.set(0, input);
     }
 
-    //updates prediction function
-    //takes in prediction from ghr & index(?)
-    //have int or string taken to determine how prediction should be updated(ex. flowchart from lecture)
-    public void updateprediction(int index, int predictionghr)
-    {
-
-        //cases dependent on if taken or not
-        
-        //prediction from prediction table
-
-        int prediction = predictionTable.get(index);
-        //strongly nt
-            if (prediction == 00){
-                if( prediction != predictionghr){
-                    //increment prediction table
-                    //else do nothing
-
-
-                }
-
-            }
-    
-
-        //strongly taken
-            // if (prediction == 11){
-            //     if( prediction != predictionghr){
-            //         //increment prediction table
-            //         //else do nothing
-
-            //     }
-
-            // }
-
-        //weakly nt
-
-            // if (prediction == 01){
-            //     if( prediction != predictionghr){
-            //         //increment prediction table
-            //         //else do nothing
-
-            //     }
-
-            // }
-
-        //weakly taken
-         // if (prediction == 10){
-            //     if( prediction != predictionghr){
-            //         //increment prediction table
-            //         //else do nothing
-
-            //     }
-
-            // }
-    }
 
 }
