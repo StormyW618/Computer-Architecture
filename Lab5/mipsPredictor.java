@@ -310,14 +310,15 @@ public class mipsPredictor extends mipsEmulator {
 
         int prediction = predictionTable.get(index);
         //strongly nt
-            // if (prediction == 00){
-            //     if( prediction != predictionghr){
-            //         //increment prediction table
-            //         //else do nothing
+            if (prediction == 00){
+                if( prediction != predictionghr){
+                    //increment prediction table
+                    //else do nothing
 
-            //     }
 
-            // }
+                }
+
+            }
     
 
         //strongly taken
