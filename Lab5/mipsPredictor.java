@@ -333,6 +333,9 @@ public class mipsPredictor extends mipsEmulator {
             if (correct == false) {
                 predictionTable.set(index, 1);
             }
+            else{
+                predictionsCorrect += 1;
+            }
 
         }
 
@@ -343,6 +346,7 @@ public class mipsPredictor extends mipsEmulator {
             // if prediction false, increment
             if (correct == true) {
                 predictionTable.set(index, 0);
+                predictionsCorrect += 1;
             } else {
                 predictionTable.set(index, 2);
             }
@@ -356,6 +360,7 @@ public class mipsPredictor extends mipsEmulator {
             // else, decrement prediction
             if (correct == true) {
                 predictionTable.set(index, 3);
+                predictionsCorrect += 1;
             } else {
                 predictionTable.set(index, 1);
             }
@@ -369,7 +374,11 @@ public class mipsPredictor extends mipsEmulator {
             if (correct == false) {
                 predictionTable.set(index, 2);
             }
+            else{
+                predictionsCorrect += 1;
+            }
         }
+        predictionsCount += 1;
         return correct;
     }
 
