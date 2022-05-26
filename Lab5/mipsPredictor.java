@@ -12,6 +12,8 @@ package Lab5;
 import Lab2.Instruction;
 import Lab2.mipsAssembler;
 import Lab3.mipsEmulator;
+
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -47,6 +49,7 @@ public class mipsPredictor extends mipsEmulator {
         ghrSize = 2;
         ghr = new ArrayList<>();
         predictionTable = new ArrayList<>();
+        initPreditionTables();
 
     }
 
@@ -60,6 +63,7 @@ public class mipsPredictor extends mipsEmulator {
         ghrSize = 2;
         ghr = new ArrayList<>();
         predictionTable = new ArrayList<>();
+        initPreditionTables();
 
     }
 
@@ -73,6 +77,7 @@ public class mipsPredictor extends mipsEmulator {
         ghrSize = 2;
         ghr = new ArrayList<>();
         predictionTable = new ArrayList<>();
+        initPreditionTables();
 
     }
 
@@ -86,6 +91,7 @@ public class mipsPredictor extends mipsEmulator {
         ghrSize = inputSize;
         ghr = new ArrayList<>();
         predictionTable = new ArrayList<>();
+        initPreditionTables();
 
     }
 
@@ -211,7 +217,7 @@ public class mipsPredictor extends mipsEmulator {
             if (pc < program.size()) {
 
                 // if instruction is a branch
-                if (((program.get(pc).instruct == "beq") || (program.get(pc).instruct == "beq"))) {
+                if (((program.get(pc).instruct.contains("beq")) || (program.get(pc).instruct.contains("bne")))) {
                     // get index for update prediction
                     int index = ghr2index();
                     // make prediction and increment counter
@@ -234,7 +240,14 @@ public class mipsPredictor extends mipsEmulator {
 
         }
 
-        System.out.printf("\t%d instruction(s) executed\n", stepsExecuted);
+    }
+
+    @Override
+    public void run() {
+       // complete program
+       while (pc < program.size()) {
+          step(1);
+       }
     }
 
     @Override
@@ -261,12 +274,27 @@ public class mipsPredictor extends mipsEmulator {
 
         // example output
         // accuracy 61.79% (8360 correct predictions, 13529 predictions)
+        float accuracy = 0;
+        if (predictionsCount > 0)
+        {
+            accuracy = ((float)predictionsCorrect / predictionsCount);
+        }
 
-        System.out.printf("accuracy %f%% (%d correct predictions, %d predictions)",
-                (predictionsCorrect / predictionsCount) * 100, predictionsCorrect, predictionsCount);
+        System.out.printf("accuracy %.2f%% (%d correct predictions, %d predictions)\n",
+        accuracy * 100, predictionsCorrect, predictionsCount);
     }
 
     // prediction functions
+    public void initPreditionTables()
+    {
+        for(int i = 0; i < ghrSize; i++)
+            ghr.add(0);
+
+        double limit = Math.pow(2,ghrSize);
+        for(int i = 0; i < limit; i++)
+            predictionTable.add(0);
+    }
+
     public int ghr2index() {
         if (ghr.isEmpty()) {
             return 0;
@@ -309,19 +337,36 @@ public class mipsPredictor extends mipsEmulator {
 
         int prediction = predictionTable.get(index);
 
+        //var to save if branch was taken or not
+        boolean result = false;
+
         // check if correct
         boolean correct = false;
-        if (program.get(pc).instruct == "beq") {
+        if (program.get(pc).instruct.contains("beq")) {
             if (registers[program.get(pc).rs] == registers[program.get(pc).rt]) {
                 if (prediction > 1) {
                     correct = true;
+                    result = true;
+                }
+            }
+            else {
+                if (prediction < 2) {
+                    correct = true;
+                    result = false;
                 }
             }
 
-        } else if (program.get(pc).instruct == "bne") {
+        } else if (program.get(pc).instruct.contains("bne") ) {
             if (registers[program.get(pc).rs] != registers[program.get(pc).rt]) {
                 if (prediction > 1) {
                     correct = true;
+                    result = true;
+                }
+            }
+            else {
+                if (prediction < 2) {
+                    correct = true;
+                    result = false;
                 }
             }
         }
@@ -333,44 +378,54 @@ public class mipsPredictor extends mipsEmulator {
             if (correct == false) {
                 predictionTable.set(index, 1);
             }
+            else{
+                predictionsCorrect += 1;
+            }
 
         }
-
         // weakly not taken
-        if (prediction == 1) {
+        else if (prediction == 1) {
             // if prediction is not taken
             // if prediction true, decrement
             // if prediction false, increment
             if (correct == true) {
                 predictionTable.set(index, 0);
+                predictionsCorrect += 1;
             } else {
                 predictionTable.set(index, 2);
             }
 
         }
-
-        // weakly t
-        if (prediction == 2) {
+        // weakly taken
+        else if (prediction == 2) {
             // if prediciton taken
             // if prediction true, increment
             // else, decrement prediction
             if (correct == true) {
                 predictionTable.set(index, 3);
+                predictionsCorrect += 1;
             } else {
                 predictionTable.set(index, 1);
             }
         }
-
         // strongly taken
-        if (prediction == 3) {
+        else if (prediction == 3) {
             // if prediction taken
             // if prediction true, do nothing
             // else, decrement prediction
             if (correct == false) {
                 predictionTable.set(index, 2);
             }
+            else{
+                predictionsCorrect += 1;
+            }
         }
-        return correct;
+        else{
+            System.out.println("something went wrong");
+        }
+
+        predictionsCount++;
+        return result;
     }
 
 }

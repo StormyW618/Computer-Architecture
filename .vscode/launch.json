@@ -10,7 +10,7 @@
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}",
-            "args":["Lab4/test2.asm"]
+            "args":["Lab5/test1.asm"]
         },
         
         {
