@@ -341,33 +341,22 @@ public class mipsPredictor extends mipsEmulator {
         boolean result = false;
 
         // check if correct
-        boolean correct = false;
+        //boolean correct = false;
         if (program.get(pc).instruct.contains("beq")) {
             if (registers[program.get(pc).rs] == registers[program.get(pc).rt]) {
-                if (prediction > 1) {
-                    correct = true;
                     result = true;
                 }
-            }
-            else {
-                if (prediction < 2) {
-                    correct = true;
+            else 
+            {
                     result = false;
-                }
             }
 
         } else if (program.get(pc).instruct.contains("bne") ) {
             if (registers[program.get(pc).rs] != registers[program.get(pc).rt]) {
-                if (prediction > 1) {
-                    correct = true;
                     result = true;
-                }
             }
             else {
-                if (prediction < 2) {
-                    correct = true;
                     result = false;
-                }
             }
         }
 
@@ -375,11 +364,12 @@ public class mipsPredictor extends mipsEmulator {
         if (prediction == 0) {
             // increment prediction table if prediction false
             // if correct, do nothing
-            if (correct == false) {
-                predictionTable.set(index, 1);
+            if (result == false) {
+                //if not taken, increment correct predictions
+                predictionsCorrect += 1;
             }
             else{
-                predictionsCorrect += 1;
+                predictionTable.set(index, 1);
             }
 
         }
@@ -388,7 +378,7 @@ public class mipsPredictor extends mipsEmulator {
             // if prediction is not taken
             // if prediction true, decrement
             // if prediction false, increment
-            if (correct == true) {
+            if (result == false) {
                 predictionTable.set(index, 0);
                 predictionsCorrect += 1;
             } else {
@@ -401,7 +391,7 @@ public class mipsPredictor extends mipsEmulator {
             // if prediciton taken
             // if prediction true, increment
             // else, decrement prediction
-            if (correct == true) {
+            if (result == true) {
                 predictionTable.set(index, 3);
                 predictionsCorrect += 1;
             } else {
@@ -413,11 +403,11 @@ public class mipsPredictor extends mipsEmulator {
             // if prediction taken
             // if prediction true, do nothing
             // else, decrement prediction
-            if (correct == false) {
-                predictionTable.set(index, 2);
+            if (result == true) {
+                predictionsCorrect += 1;
             }
             else{
-                predictionsCorrect += 1;
+                predictionTable.set(index, 2);
             }
         }
         else{
