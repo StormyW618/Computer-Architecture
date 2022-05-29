@@ -10,7 +10,7 @@
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}",
-            "args":["Lab5/test1.asm", "Lab5/script1", "8"]
+            "args":["./Lab6/mem_stream.1"]
         },
         
         {

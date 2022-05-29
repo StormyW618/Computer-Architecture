@@ -17,11 +17,6 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-//---to do---
-//maybe fill ghr and prediction table with zeros in constructors?
-//make function to help with updating prediction table?
-//function to get prediction or just do it in step? maybe get/update prediction is same function?
-
 public class mipsPredictor extends mipsEmulator {
 
     /****************************************************
