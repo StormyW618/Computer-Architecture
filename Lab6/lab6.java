@@ -42,6 +42,7 @@ public class lab6 {
 
             // print out results for caches
             test1.showSummary();
+            System.out.println("---------------------------");
 
         } catch (IllegalStateException | FileNotFoundException e) {
             // if trouble opening file
