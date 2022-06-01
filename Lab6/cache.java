@@ -23,17 +23,17 @@ public class cache {
     public int ways;
     public int sizeBlock;
     public int sizeIndex;
-    public int searches; 
+    public int searches;
     public int hits;
     public float hitRate;
     public int[][] tagTable;
-    public int[][][][] dataTable;
+    public boolean[][] validBits;
+    // add valib bit array
 
     // ---METHODS---
     // constructors
-    public cache()
-    {
-        //initialize members
+    public cache() {
+        // initialize members
         name = "No Name Given";
         sizeTotal = 0;
         ways = 0;
@@ -43,113 +43,116 @@ public class cache {
         hits = 0;
         hitRate = 0;
         tagTable = null;
-        dataTable = null;
 
     }
 
-    public cache(String name, int totalSize, int Associativity, int blockSize)
-    {
-        //initialize members
+    public cache(String name, int totalSize, int Associativity, int blockSize) {
+        // initialize members
         this.name = name;
         sizeTotal = totalSize;
         ways = Associativity;
         sizeBlock = blockSize;
-        sizeIndex = totalSize/(ways*blockSize);
+        sizeIndex = totalSize / (ways * blockSize);
         searches = 0;
         hits = 0;
         hitRate = 0;
         tagTable = new int[ways][sizeIndex];
-        dataTable = new int[ways][sizeIndex][sizeBlock][4];
+        validBits = new boolean[ways][sizeIndex];
     }
 
     // search method
-    public void search(int memAddress)
-    {
-        //declare varibles
-        boolean found, empty;
+    public void search(int memAddress) {
+        // declare varibles
+        boolean found;
 
-        //mask out index and offsets
+        // mask out index and offsets
         int byteOffset = memAddress % 4;
-        int blockOffset = (memAddress/4) % sizeBlock;
-        int index = ((memAddress/4)/sizeBlock) % (sizeIndex);
-        int tag = ((memAddress/4)/sizeBlock)/(sizeIndex);
+        int blockOffset = (memAddress / 4) % sizeBlock;
+        int index = ((memAddress / 4) / sizeBlock) % (sizeIndex);
+        int tag = ((memAddress / 4) / sizeBlock) / (sizeIndex);
 
-        //go through different ways and see if the address is 
-        //present in cache at the index and block offset
+        // go through different ways and see if the address is
+        // present in cache at the index and block offset
         found = false;
-        for(int way = 0; way < ways; way++)
-        {
-            if (tagTable[way][index] != 0) //pesudo valid bit
+        for (int way = 0; way < ways; way++) {
+            if (validBits[way][index] == true) // pesudo valid bit
             {
-                if ((tag == tagTable[way][index]) && (memAddress == dataTable[way][index][blockOffset][byteOffset]))
-                {
-                    //indicate that address was found
+                if (tag == tagTable[way][index]) {
+                    // indicate that address was found
                     found = true;
-                    
-                    //increment hits
+
+                    // increment hits
                     hits++;
-    
-                    //adjust LRU (Least Recently Used)
-    
-                    //leave
-                    //break;
+
+                    // adjust LRU (Least Recently Used)
+
+                    // leave
+                    // break;
                 }
             }
 
         }
 
-        //if address wasn't found at either way, replace empty or LRU with new data
-        if (!found)
-        {
-            empty = false;
-            for(int way = 0; way < ways; way++)
-            {
-                //check if spot it empty
-                if (dataTable[way][index][blockOffset][byteOffset] == 0)
-                {
-                    //indicate empty is true
-                    empty = true;
-
-                    //fill spot with address
-                    dataTable[way][index][blockOffset][byteOffset] = memAddress;
-                    tagTable[way][index] = tag;
-                }
-    
-            }
-            
-            //if there are no empty spot available, replace LRU
-            if (!empty)
-            {
-                for(int way = 0; way < ways; way++)
-                {
-                    //check if spot matches LRU
-                    //adjust stuff here
-                    //if (dataTable[way][index][blockOffset][byteOffset] == 0)
-                    {
-                        //fill spot with address
-                        dataTable[way][index][blockOffset][byteOffset] = memAddress;
-                        tagTable[way][index] = tag;
-                    }
-        
-                }
-            }
+        // if address wasn't found at either way, replace empty or LRU with new data
+        if (!found) {
+            update(index, blockOffset, byteOffset, memAddress, tag);
         }
 
-        //increment amount of searches
-        searches++; 
+        // increment amount of searches
+        searches++;
     }
 
     // update method
+    public void update(int index, int blockOffset, int byteOffset, int memAddress, int tag) {
+        boolean empty;
+
+        empty = false;
+        for (int way = 0; way < ways; way++) {
+            // check if spot it empty
+            if (tagTable[way][index] == 0) {
+                // indicate empty is true
+                empty = true;
+
+                // fill spot with address
+                // dataTable[way][index][blockOffset][byteOffset] = memAddress;
+                tagTable[way][index] = tag;
+
+                // flip valid bit to true
+            }
+
+        }
+
+        // if there are no empty spot available, replace LRU
+        // least recently used
+        if (!empty) {
+            for (int way = 0; way < ways; way++) {
+                // check if spot matches LRU
+                // adjust stuff here
+                // if (dataTable[way][index][blockOffset][byteOffset] == 0)
+                {
+                    // fill spot with address
+                    dataTable[way][index][blockOffset][byteOffset] = memAddress;
+                    tagTable[way][index] = tag;
+                }
+
+            }
+        }
+
+    }
+
+    // least recently used hashmap method: Key: tag and value : line number
+    // inputs: index, line number
+    // for given index, want to check two tags and whichever one is lesser, replace
+    // that one
 
     // print method
-    public void showSummary()
-    {
-        //Cache #1
-        //Cache size: 2048B	Associativity: 1	Block size: 1
-        //Hits: 4028929	Hit Rate: 80.58%
-        hitRate = ((float)hits/searches) * 100;
+    public void showSummary() {
+        // Cache #1
+        // Cache size: 2048B Associativity: 1 Block size: 1
+        // Hits: 4028929 Hit Rate: 80.58%
+        hitRate = ((float) hits / searches) * 100;
 
-        System.out.printf("%s\nCache size: %dB Associativity: %d Block size: %d\n"+
-                          "Hits: %d Hit Rate: %.2f%%\n", name, sizeTotal, ways, sizeBlock, hits, hitRate);
+        System.out.printf("%s\nCache size: %dB Associativity: %d Block size: %d\n" +
+                "Hits: %d Hit Rate: %.2f%%\n", name, sizeTotal, ways, sizeBlock, hits, hitRate);
     }
 }
