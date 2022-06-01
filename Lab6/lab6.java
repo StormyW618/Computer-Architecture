@@ -21,7 +21,7 @@ public class lab6 {
     public static void main(String[] args) {
 
         // declare caches
-        cache test1 = new cache();
+        cache test1 = new cache("Cache #1", 2048, 1, 1);
 
         try {
             // read entrys in memory file
@@ -30,7 +30,13 @@ public class lab6 {
 
             while (file_input.hasNextLine()) {
                 // read line in file, parse it and then update caches
-                String file = file_input.nextLine();// obtaining file input
+                String line = file_input.nextLine();// obtaining file input
+
+                //split line and parse out address
+                String[] splitLine = line.split("\t");
+                int address = Integer.parseInt(splitLine[1],16);
+
+                test1.search(address);
 
             }
 

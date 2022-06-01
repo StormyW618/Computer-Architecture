@@ -22,7 +22,9 @@ public class cache {
     public int sizeTotal;
     public int ways;
     public int sizeBlock;
+    public int sizeIndex;
     public int hits;
+    public int searches; 
     public float hitRate;
 
     // ---METHODS---
@@ -34,7 +36,9 @@ public class cache {
         sizeTotal = 0;
         ways = 0;
         sizeBlock = 0;
+        sizeIndex = 0;
         hits = 0;
+        searches = 0;
         hitRate = 0;
 
     }
@@ -46,9 +50,22 @@ public class cache {
         sizeTotal = totalSize;
         ways = Associativity;
         sizeBlock = blockSize;
+        sizeIndex = totalSize/(ways*blockSize);
         hits = 0;
+        searches = 0;
         hitRate = 0;
 
+    }
+
+    // search method
+    public void search(int memAddress)
+    {
+        int byteOffset = memAddress % 4;
+        int blockOffset = (memAddress/4) % sizeBlock;
+        int index = ((memAddress/4)/sizeBlock) % (sizeIndex);
+
+
+        searches++; 
     }
 
     // update method
