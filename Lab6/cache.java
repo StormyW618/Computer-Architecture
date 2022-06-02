@@ -9,12 +9,13 @@
 
 package Lab6;
 
+import java.util.HashMap;
+
 public class cache {
 
     /****************************************************
      * Class is to organize data and simplify process of
-     * predicting branches as correlating branch predictor
-     * for assembly programs.
+     * simulating a cache in a processor.
      ****************************************************/
 
     // ---MEMBERS---
@@ -28,6 +29,8 @@ public class cache {
     public float hitRate;
     public int[][] tagTable;
     public boolean[][] validBits;
+
+    public HashMap<Integer, Integer> lru; // = new HashMap<int,int>();
     // add valib bit array
 
     // ---METHODS---
@@ -43,6 +46,8 @@ public class cache {
         hits = 0;
         hitRate = 0;
         tagTable = null;
+        validBits = null;
+        lru = new HashMap<Integer, Integer>();
 
     }
 
@@ -58,6 +63,7 @@ public class cache {
         hitRate = 0;
         tagTable = new int[ways][sizeIndex];
         validBits = new boolean[ways][sizeIndex];
+        lru = new HashMap<>();
     }
 
     // search method
@@ -75,8 +81,10 @@ public class cache {
         // present in cache at the index and block offset
         found = false;
         for (int way = 0; way < ways; way++) {
-            if (validBits[way][index] == true) // pesudo valid bit
+            if (validBits[way][index] == true) // check valid bit
             {
+                // assuming valid bit is good
+                //verify tag(?)
                 if (tag == tagTable[way][index]) {
                     // indicate that address was found
                     found = true;
@@ -85,8 +93,8 @@ public class cache {
                     hits++;
 
                     // adjust LRU (Least Recently Used)
-
-                    // leave
+                    hash(tag, searches);
+                    // leave?
                     // break;
                 }
             }
@@ -118,6 +126,7 @@ public class cache {
                 tagTable[way][index] = tag;
 
                 // flip valid bit to true
+                validBits[way][index] = true;
             }
 
         }
@@ -125,25 +134,51 @@ public class cache {
         // if there are no empty spot available, replace LRU
         // least recently used
         if (!empty) {
+            // getting from line numbe lru and comparing with currentLowest line number()
+            // if(lru.get(tagTable[way][index])<currentLowest)
+            // lowestTag = tagfrom Array
+            // currentLowest = lru.get(tagTable[way][index])
+            int currentLowest = 5000000;
+            int lowestTag = 0;
+            for (int way = 0; way < ways; way++) {
+                if (lru.get(tagTable[way][index]) < currentLowest) {
+                    lowestTag = tagTable[way][index];
+                    currentLowest = lru.get(tagTable[way][index]);
+                }
+
+            }
+
             for (int way = 0; way < ways; way++) {
                 // check if spot matches LRU
                 // adjust stuff here
-                // if (dataTable[way][index][blockOffset][byteOffset] == 0)
-                {
+                if (tagTable[way][index] == lowestTag) {
                     // fill spot with address
-                    dataTable[way][index][blockOffset][byteOffset] = memAddress;
                     tagTable[way][index] = tag;
                 }
 
             }
         }
 
+        // update hash?
+        hash(tag, searches);
     }
 
     // least recently used hashmap method: Key: tag and value : line number
-    // inputs: index, line number
+    // inputs: tag, line number
     // for given index, want to check two tags and whichever one is lesser, replace
     // that one
+    public void hash(int tag, int linenum) {
+        // have check for update or add
+        if (lru.containsKey(tag)) {
+            // update LRU value
+            lru.replace(tag, linenum);
+
+        } else {
+            // add tag and line number to LRU
+            lru.put(tag, linenum);
+        }
+
+    }
 
     // print method
     public void showSummary() {
