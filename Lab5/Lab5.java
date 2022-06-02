@@ -23,7 +23,7 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class Lab5 {
+public class lab5 {
 
     public static void main(String[] args) {
         // define mips objects
