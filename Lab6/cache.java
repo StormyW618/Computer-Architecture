@@ -10,6 +10,7 @@
 package Lab6;
 
 import java.util.HashMap;
+import java.lang.Math;
 
 public class cache {
 
@@ -23,7 +24,9 @@ public class cache {
     public int sizeTotal;
     public int ways;
     public int sizeBlock;
+    public int bitsBlocks;
     public int sizeIndex;
+    public int bitsIndex;
     public int searches;
     public int hits;
     public float hitRate;
@@ -41,7 +44,9 @@ public class cache {
         sizeTotal = 0;
         ways = 0;
         sizeBlock = 0;
+        bitsBlocks = 0;
         sizeIndex = 0;
+        bitsIndex = 0;
         searches = 0;
         hits = 0;
         hitRate = 0;
@@ -57,7 +62,9 @@ public class cache {
         sizeTotal = totalSize;
         ways = Associativity;
         sizeBlock = blockSize;
-        sizeIndex = totalSize / (ways * blockSize);
+        bitsBlocks = (int)(Math.log(sizeBlock)/Math.log(2));
+        sizeIndex = totalSize / (ways * (blockSize*4));
+        bitsIndex = (int)(Math.log(sizeIndex)/Math.log(2));
         searches = 0;
         hits = 0;
         hitRate = 0;
@@ -72,6 +79,7 @@ public class cache {
         boolean found;
 
         // mask out index and offsets
+        //math notation
         int byteOffset = memAddress % 4;
         int blockOffset = (memAddress / 4) % sizeBlock;
         int index = ((memAddress / 4) / sizeBlock) % (sizeIndex);
@@ -83,8 +91,6 @@ public class cache {
         for (int way = 0; way < ways; way++) {
             if (validBits[way][index] == true) // check valid bit
             {
-                // assuming valid bit is good
-                //verify tag(?)
                 if (tag == tagTable[way][index]) {
                     // indicate that address was found
                     found = true;
@@ -94,8 +100,7 @@ public class cache {
 
                     // adjust LRU (Least Recently Used)
                     hash(tag, searches);
-                    // leave?
-                    // break;
+                    
                 }
             }
 
@@ -127,6 +132,9 @@ public class cache {
 
                 // flip valid bit to true
                 validBits[way][index] = true;
+
+                //leave loop
+                break;
             }
 
         }
@@ -138,7 +146,7 @@ public class cache {
             // if(lru.get(tagTable[way][index])<currentLowest)
             // lowestTag = tagfrom Array
             // currentLowest = lru.get(tagTable[way][index])
-            int currentLowest = 5000000;
+            int currentLowest = 5000001;
             int lowestTag = 0;
             for (int way = 0; way < ways; way++) {
                 if (lru.get(tagTable[way][index]) < currentLowest) {
