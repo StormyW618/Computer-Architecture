@@ -4,6 +4,29 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "args":["./Lab6/mem_stream.1"]
+        },
+        
+        {
+            "type": "java",
+            "name": "Launch lab3",
+            "request": "launch",
+            "mainClass": "Lab3.lab3",
+            "projectName": "Computer-Architecture_ce750fce"
+        },
+        {
+            "type": "java",
+            "name": "Launch lab2",
+            "request": "launch",
+            "mainClass": "Lab2.lab2",
+            "projectName": "Computer-Architecture_ce750fce"
+        },
         {
             "type": "java",
             "name": "Launch helloWorld",
